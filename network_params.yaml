@@ -1,0 +1,42 @@
+network:
+  use_recurrency: true
+  num_exc_pop: 4  # Number of excitatory populations
+  num_exc_neu_per_pop: 20  # Number of excitatory AdEx neurons per pop
+  use_poisson_generators: true
+  num_poisson_generators: 20
+  use_dc_exc_injectors: false
+  use_dc_inh_injector: true
+
+weights:
+  awake:
+    recurrent_weight: 9.5
+    inh_to_exc_weight: -0.85
+    exc_to_inh_weight: 7.0
+    inh_to_inh_weight: -1.0 
+  NREM:
+    recurrent_weight: 19.0
+    inh_to_exc_weight: -1.7
+    exc_to_inh_weight: 7.0 
+    inh_to_inh_weight: -1.0
+
+poisson:
+  awake:
+    poisson_noise_spreading_factor: 4.0
+    poisson_basic_rate: 600.0
+    poisson_delta: 0.0
+    poisson_weight: 0.6
+  NREM:
+    poisson_noise_spreading_factor: 4.0
+    poisson_basic_rate: 600.0
+    poisson_delta: 0.0
+    poisson_weight: 0.6
+
+dc_exc:
+  amplitudes: [0, 0]
+  weight: 1.0
+  delay: 1.0
+
+dc_inh:
+  amplitude: 0.0
+  weight: 1.0
+  delay: 1.0
