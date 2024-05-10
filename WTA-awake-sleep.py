@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 from scipy.signal import spectrogram, butter, filtfilt
 from analysis_functions import *
 from asserting_functions import *
+#from spectrum_with_bands import *
 from nest_reset_create_connect_simulate import *
 from yaml_io import *
 
@@ -224,7 +225,8 @@ print("nest_pms",nest_pms)
 # In[11]:
 
 
-sim_completed, spike_recorders, inh_spike_recorder = nest_reset_create_connect_simulate(nest_pms)
+num_threads=4
+sim_completed, spike_recorders, inh_spike_recorder = nest_reset_create_connect_simulate(nest_pms,num_threads)
 print("sim_completed", sim_completed)
 
 
@@ -257,9 +259,9 @@ preliminary_sim_look(debug_mode,nest_pms, spike_recorders, inh_spike_recorder, n
 
 
 #setting the analysis parameters
-default_analysis=True
+default_cropping=True
 
-if default_analysis:
+if default_cropping:
     crop_start_ms=nest_pms["recording_pms"]["start_ms"] 
     crop_stop_ms=nest_pms["recording_pms"]["stop_ms"] 
 else:
@@ -270,8 +272,28 @@ crop_pms={"start_ms":crop_start_ms,
           "stop_ms":crop_stop_ms}
 crop_pms["duration_ms"]=crop_pms["stop_ms"]-crop_pms["start_ms"]
 
-spectrogram_window_ms=crop_pms["duration_ms"]/4
-    
+#switch-case decision of spectral_window_ms based on the value of the crop_duration_ms
+def spectral_window_ms_analysis_switch(crop_duration_ms):
+    if crop_duration_ms<4000.0:
+        spectral_window_ms=crop_duration_ms/4.0
+        return spectral_window_ms
+    if crop_duration_ms <= 8000.0:
+        spectral_window_ms = 1000.0
+        return spectral_window_ms
+    if crop_duration_ms <= 16000.0:
+        spectral_window_ms = 2000.0
+        return spectral_window_ms
+    else:
+        spectral_window_ms = 4000.0
+        return spectral_window_ms
+        
+default_spectral_analysis=True
+
+if default_spectral_analysis:
+    spectrogram_window_ms=spectral_window_ms_analysis_switch(crop_pms["duration_ms"])
+else:
+    spectrogram_window_ms=1000.0
+   
 sampling_pms={"spikes_sampling_window_ms": 0.2,
               "spectrogram_window_ms":spectrogram_window_ms,
               "low_freq_sampling_window_ms":12.5}
@@ -339,7 +361,8 @@ single_trace_spike_times = combine_spike_times_in_single_trace(cropped_events, n
 
 
 #Calculate combined firing rates
-time_points, combined_firing_rate =     calculate_firing_rate(crop_pms, analysis_pms, single_trace_spike_times, num_exc_pop*num_exc_neu_per_pop)
+time_points, combined_firing_rate = \
+    calculate_firing_rate(crop_pms, analysis_pms, single_trace_spike_times, num_exc_pop*num_exc_neu_per_pop)
 
 
 # In[20]:
@@ -363,18 +386,10 @@ firing_rates_plot(time_points, smoothed_spikes_firing_rate, crop_pms)
 # In[22]:
 
 
-full_spectrum_preview=True
-
-lower_detectable_freq_Hz=analysis_pms["lower_detectable_frequency_Hz"]
-max_analysis_freq_Hz=analysis_pms["max_nyquist_Hz"]
-max_freq_plot_Hz = 500
-assert(max_freq_plot_Hz <= max_analysis_freq_Hz)
-
-if full_spectrum_preview:
-    averaging_freq_window_size_Hz = 10 #Hz
-
-    compute_and_plot_spectrum_with_moving_average(smoothed_spikes_firing_rate,        analysis_pms, averaging_freq_window_size_Hz, max_freq_plot_Hz)
-    #compute_and_plot_spectrum_with_moving_average(combined_firing_rate, sampling_rate_Hz, averaging_freq_window_size_Hz, max_freq_plot_Hz)
+#dividing the data in segments for reliable spectral analysis
+max_plot_freq_Hz=250.0
+smoothing_length=20 #frequency samples
+compute_spectrum_with_error_bands(smoothed_spikes_firing_rate, analysis_pms, max_plot_freq_Hz, smoothing_length)
 
 
 # In[23]:
@@ -383,7 +398,9 @@ if full_spectrum_preview:
 max_plot_freq_Hz=100
 
 #Spectrogram plot
-plot_spectrogram(time_points[0],                 smoothed_spikes_firing_rate,                 analysis_pms, max_plot_freq_Hz)
+plot_spectrogram(time_points[0],\
+                 smoothed_spikes_firing_rate,\
+                 analysis_pms, max_plot_freq_Hz)
 
 #Spectrogram plot
 #plot_spectrogram(time_points[0], combined_firing_rate, analysis_pms)
@@ -424,15 +441,10 @@ firing_rates_plot(time_points, tissue_response_rate, crop_pms)
 # In[27]:
 
 
-full_spectrum_preview=True
-if full_spectrum_preview:
-    lower_detectable_freq_Hz=analysis_pms["lower_detectable_frequency_Hz"]
-    max_analysis_freq_Hz=analysis_pms["max_nyquist_Hz"]
-    max_freq_plot_Hz = 50 #Hz 
-    assert(max_freq_plot_Hz <= max_analysis_freq_Hz)
-    averaging_freq_window_size_Hz = 2 #Hz
-    compute_and_plot_spectrum_with_moving_average(tissue_response_rate,       analysis_pms, averaging_freq_window_size_Hz, max_freq_plot_Hz)
-    #compute_and_plot_spectrum_with_moving_average(combined_firing_rate, sampling_rate_Hz, averaging_freq_window_size_Hz, max_freq_plot_Hz)
+#dividing the data in segments for reliable spectral analysis
+max_plot_freq_Hz=40
+smoothing_length=4 #frequency samples
+compute_spectrum_with_error_bands(tissue_response_rate, analysis_pms, max_plot_freq_Hz, smoothing_length)
 
 
 # In[28]:
@@ -440,7 +452,9 @@ if full_spectrum_preview:
 
 max_plot_freq_Hz=40
 #Spectrogram plot
-plot_spectrogram(time_points[0],                 tissue_response_rate,                 analysis_pms, max_plot_freq_Hz)
+plot_spectrogram(time_points[0],\
+                 tissue_response_rate,\
+                 analysis_pms, max_plot_freq_Hz)
 
 #Spectrogram plot
 #plot_spectrogram(time_points[0], combined_firing_rate, analysis_pms)

@@ -1,11 +1,11 @@
 import nest
-def nest_reset_create_connect_simulate(nest_pms):
+def nest_reset_create_connect_simulate(nest_pms, num_threads):
     sim_completed=False
     sim_pms=nest_pms["sim_pms"]
-    #Creation of actual simulation starts herefrom
     nest.ResetKernel()
 
     nest.SetKernelStatus({"resolution": sim_pms["resolution_ms"]})
+    nest.SetKernelStatus({'local_num_threads':num_threads})
     
     num_exc_neu_per_pop = nest_pms["network"]["num_exc_neu_per_pop"]
     num_exc_pop = nest_pms["network"]["num_exc_pop"]

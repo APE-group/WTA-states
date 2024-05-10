@@ -249,6 +249,66 @@ def smooth_signal(signal, kernel):
     """
     return np.convolve(signal, kernel, mode='same')
 
+
+def moving_average(data, window_size):
+    window = np.ones(int(window_size)) / float(window_size)
+    smoothed = np.convolve(data, window, 'same')
+    edge_correction = np.convolve(np.ones_like(data), window, 'same')
+    return smoothed / edge_correction
+
+def compute_spectrum_segments(data, sampling_rate, segment_length_ms, overlap_factor=0.5):
+    segment_length = int(segment_length_ms * sampling_rate / 1000)
+    step = int(segment_length * (1 - overlap_factor))
+    num_segments = (len(data) - segment_length) // step + 1
+    spectra = []
+
+    for i in range(num_segments):
+        segment = data[i * step: i * step + segment_length]
+        fft_data = np.fft.fft(segment)
+        fft_freq = np.fft.fftfreq(segment_length, d=1/sampling_rate)
+        magnitude = np.abs(fft_data)
+        spectra.append(magnitude)
+
+    return np.array(spectra), fft_freq, num_segments
+
+def plot_spectrum_with_error_bands(segment_duration_ms, max_plot_freq_Hz, spectra, freqs, num_segments, smoothing_length):
+    mean_spectrum = np.mean(spectra, axis=0)
+    smoothed_mean_spectrum = moving_average(mean_spectrum, smoothing_length)
+    assert (segment_duration_ms>0.0)
+    assert (freqs[-1]<=max_plot_freq_Hz)
+    lower_detectable_frequency_Hz=1000.0/segment_duration_ms
+    valid_indices = (freqs >= lower_detectable_frequency_Hz) & (freqs<=max_plot_freq_Hz)
+    freqs, mean_spectrum, smoothed_mean_spectrum = freqs[valid_indices], mean_spectrum[valid_indices], smoothed_mean_spectrum[valid_indices]
+
+    max_index = np.argmax(mean_spectrum)  # Index of the max value in the mean spectrum
+    max_freq_Hz = freqs[max_index]  # Corresponding frequency
+
+    plt.figure(figsize=(12, 8))
+    plt.fill_between(freqs, np.percentile(spectra, 25, axis=0)[valid_indices], np.percentile(spectra, 75, axis=0)[valid_indices], color='lightblue', label='Quartile Range')
+    plt.plot(freqs, mean_spectrum, label='Mean Spectrum', color='blue')
+    plt.plot(freqs, smoothed_mean_spectrum, label='Smoothed Mean Spectrum', color='red', linestyle='--')
+    plt.semilogy()
+    plt.xlim(lower_detectable_frequency_Hz, max_plot_freq_Hz)
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('Magnitude (Log Scale)')
+    # Frequency resolution in Hz
+    smoothing_freq_Hz = lower_detectable_frequency_Hz * smoothing_length
+    plt.title(f'Spectrum with Error Bands\nNumber of segments: {num_segments}, Segment duration: {segment_duration_ms} ms, Smoothing Window: {smoothing_freq_Hz:.2f} Hz')
+    plt.legend()
+    plt.grid(True)
+
+    # Annotating the max frequency at the bottom of the plot
+    plt.annotate(f'Max freq: {max_freq_Hz:.2f} Hz', xy=(max_freq_Hz, smoothed_mean_spectrum[max_index]), xytext=(max_freq_Hz, 0.1*np.min(smoothed_mean_spectrum)),
+                 arrowprops=dict(facecolor='black', shrink=0.05, width=1, headwidth=8), verticalalignment='bottom')
+
+    plt.show()
+
+def compute_spectrum_with_error_bands(data, analysis_pms, max_plot_freq_Hz, smoothing_length):
+    segment_duration_ms = analysis_pms["spectrogram_window_ms"]
+    analysis_sampling_freq_Hz = analysis_pms["analysis_sampling_freq_Hz"]
+    spectra, fft_freq, num_segments = compute_spectrum_segments(data, analysis_sampling_freq_Hz, segment_duration_ms)
+    plot_spectrum_with_error_bands(segment_duration_ms, max_plot_freq_Hz, spectra, fft_freq, num_segments, smoothing_length)
+
 #Spectrogram plot functions
 def plot_spectrogram(time_origin_ms, data, analysis_pms, max_plot_freq_Hz):
     lower_detectable_freq_Hz=analysis_pms["lower_detectable_frequency_Hz"]
@@ -275,78 +335,3 @@ def plot_spectrogram(time_origin_ms, data, analysis_pms, max_plot_freq_Hz):
 
     plt.show()
     
-
-def moving_average(data, window_size):
-    """Compute the moving average using a simple convolution."""
-    window = np.ones(int(window_size)) / float(window_size)
-    return np.convolve(data, window, 'same')
-
-def compute_and_plot_spectrum_with_moving_average(data, analysis_pms, freq_avg_window_Hz, max_plot_freq_Hz):
-    """
-    Computes the Fourier Transform to find the spectrum of the given data,
-    calculates a moving average of the spectrum, and plots both.
-    
-    Parameters:
-    - data: 1D array of time series data.
-    - sampling_rate: Sampling frequency of the data in Hz.
-    - window_size: Window size for the moving average in number of samples.
-    """
-    lower_detectable_freq_Hz=analysis_pms["lower_detectable_frequency_Hz"]
-    max_nyquist_Hz = analysis_pms["max_nyquist_Hz"]
-    sampling_rate_Hz=analysis_pms["analysis_sampling_freq_Hz"]
-    assert(sampling_rate_Hz==2.0*max_nyquist_Hz)
-      
-    assert(max_plot_freq_Hz<=max_nyquist_Hz)
-    # Compute the FFT (Fast Fourier Transform)
-    n = len(data)
-    fft_data = np.fft.fft(data)
-    fft_freq = np.fft.fftfreq(n, d=1/sampling_rate_Hz)
-
-    # Compute the magnitude of the FFT
-    magnitude = np.abs(fft_data)
-    positive_frequencies = fft_freq > 0
-    
-    # Calculate moving average of the magnitude spectrum
-    moving_avg_magnitude = moving_average(magnitude, freq_avg_window_Hz)
-
-    # Plotting the spectrum and its moving average
-    plt.figure(figsize=(12, 8))
-    plt.xlim(lower_detectable_freq_Hz, max_plot_freq_Hz)
-    plt.semilogy(fft_freq[positive_frequencies], magnitude[positive_frequencies], label='Original Spectrum')
-    plt.semilogy(fft_freq[positive_frequencies], moving_avg_magnitude[positive_frequencies], label='Moving Average', linestyle='--')
-    plt.xlabel('Frequency (Hz)')
-    plt.ylabel('Magnitude (Log Scale)')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-    max_index = np.argmax(magnitude[positive_frequencies])
-    max_freq = fft_freq[positive_frequencies][max_index]
-    print("max of fft at", max_freq)
-    
-def low_pass_filter(data, sampling_rate, cutoff_freq):
-    """
-    Applies a low-pass Butterworth filter to the given data.
-    
-    Parameters:
-    - data: 1D array of time series data.
-    - sampling_rate: Sampling frequency of the data in Hz.
-    - cutoff_freq: Cutoff frequency in Hz. Frequencies higher than this will be attenuated.
-    
-    Returns:
-    - filtered_data: 1D array of the filtered time series data.
-    """
-    # Normalize the frequency by the Nyquist frequency (half the sampling rate)
-    nyquist = 0.5 * sampling_rate
-    norm_cutoff_freq = cutoff_freq / nyquist
-
-    # Design the Butterworth filter
-    b, a = butter(N=5, Wn=norm_cutoff_freq, btype='low', analog=False)
-
-    # Apply the filter to the data using filtfilt, which applies the filter forward and backward
-    filtered_data = filtfilt(b, a, data)
-
-    return filtered_data
-
-
-
-
