@@ -1,8 +1,0 @@
-#PLEASE do not modify this file
-#PLEASE modify the tune... file
-sim_pms:
-    stop_ms: 25000.0
-    resolution_ms: 0.1
-recording_pms:
-    start_ms: 5000.0
-    stop_ms: 25000.0
