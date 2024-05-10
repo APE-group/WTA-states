@@ -1,0 +1,23 @@
+#state can be either "awake" or "NREM"
+brain_state: "NREM"
+#brain_state: "awake"
+
+network:
+  num_exc_pop: 4  # Number of excitatory populations
+  #num_exc_neu_per_pop: 20  # Number of excitatory AdEx neurons per pop
+  #use_poisson_generators: true
+  #num_poisson_generators: 20
+
+#weights:
+  #awake:
+  #NREM:
+
+#poisson:
+  #awake:
+    #poisson_noise_spreading_factor: 1.0
+  #NREM:
+    #poisson_noise_spreading_factor: 1.0
+
+#dc_exc:
+
+#dc_inh:
