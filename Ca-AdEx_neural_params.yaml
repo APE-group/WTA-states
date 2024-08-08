@@ -1,0 +1,77 @@
+multi_compartment: True
+neuron_kind: "excitatory"
+equation_params:
+    C_m_d: 10.0
+    C_m_s: 362.5648533496359
+    Ca_0: 0.0001
+    Ca_th: 0.00043
+    V_reset: -62.12885359171539
+    d_BAP: 2.4771369535227308
+    delta_T: 2.0
+    e_K: -90.0
+    e_L_d: -80.0
+    e_L_s: -58.656837907086036
+    e_Na_Adex: -50.0
+    exp_K_Ca: 4.8
+    g_C_d: 17.55192973190035
+    g_L_d: 2.5088334130360064
+    g_L_s: 6.666182946322264
+    gbar_Ca: 22.9883727668534
+    gbar_K_Ca: 18.36101756561857
+    gbar_Na_Adex: 19.71852736081414
+    h_half: -21.0
+    h_slope: -0.5
+    m_half: -9.0
+    m_slope: 0.5
+    phi: 2.200252914099994e-08
+    t_ref: 0.0
+    tau_decay_Ca: 129.45363748885939
+    tau_h: 80.0
+    tau_m: 15.0
+    tau_m_K_Ca: 1.0
+    w_BAP: 32.39598141845997
+    #FITNESS 2024-0805(0.08714615248168416, 0.0, 0.002167021528270653, 0.0027472527472527375, 
+    #0.0, 0.000887919600040812, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0022825317856660587, 0.0, 0.0, 0.0, 
+    #0.05580550304557868, 0.00840277777777778, 0.01485314599709743)
+    tau_w: 500.0
+    a: 0
+    b: 40.0
+    #the following must be aligned with V_peak of AdEx
+    V_th: -40.0
+NREM_changers:
+    #followings to change brain-state
+    b_NREM: 200.0
+    g_C_d_NREM_multiplier: 0.0     
+    delta_e_L_s_NREM: -5.0
+    delta_e_L_d_NREM: -5.0 
+receptors:
+    exc_AMPA_matching_alpha:
+        tau_r_AMPA: .173
+        tau_d_AMPA: .227
+        e_AMPA: 0.
+        default_receptor_index: 9.
+        comment: "used to match alpha function with tau = .2 ms for AdEx like excitatory input"
+    inh_AMPA_matching_alpha:
+        tau_r_AMPA: 1.73
+        tau_d_AMPA: 2.27
+        e_AMPA: -85.
+        default_receptor_index: 10.
+        comment: "used to match alpha function with tau = 2.0 ms for AdEx like inhibitory input"
+    exc_AMPA_BAP:
+        tau_r_AMPA: .2
+        tau_d_AMPA: 3.0
+        e_AMPA: 0.
+        default_receptor_index: 1.
+        comment: "used to induce BAP like distal stimulus"
+    REFRACT:
+        g_refract: 100000., 
+        default_receptor_index: 4.
+        comment: "special receptor to create refractory behaviour"   
+    ADAPT:
+        default_receptor_index: 5.
+        comment: "special receptor to create spike frequency adaptation"       
+      
+      
+      
+
+

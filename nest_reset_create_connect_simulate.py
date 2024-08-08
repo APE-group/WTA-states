@@ -1,4 +1,6 @@
 import nest
+from cm_neuron import create_cm_neuron
+
 def nest_reset_create_connect_simulate(nest_pms, num_threads):
     sim_completed=False
     sim_pms=nest_pms["sim_pms"]
@@ -10,20 +12,30 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads):
     num_exc_neu_per_pop = nest_pms["network"]["num_exc_neu_per_pop"]
     num_exc_pop = nest_pms["network"]["num_exc_pop"]
 
-    use_standard_exc_nest_neuron=nest_pms["use_standard_exc_nest_neuron"]
-    if use_standard_exc_nest_neuron:
-        exc_neu_params=nest_pms["exc_neu_params"]
+    use_single_compartment_environment=nest_pms["use_single_compartment_environment"]
+    print("IN nest_reset_create_connect_simulate: use_single_compartment_environment =", use_single_compartment_environment)
+    exc_neu_params=nest_pms['exc_neu_params'] 
+
+    if use_single_compartment_environment:
         # Create excitatory neuron populations
         neurons = [
             nest.Create(
                 "aeif_cond_alpha",
                 num_exc_neu_per_pop,
-                params=exc_neu_params,
+                params=exc_neu_params['equation_params'],
             )
             for _ in range(num_exc_pop)
         ]
     else:
-        assert("MC exc neuron not yet supported")
+        #assert False, "Multi compartment non supported"
+        # Create excitatory Ca-AdEx neuron populations
+        nest.CopyModel('static_synapse', 'REFRACT_syn')
+        nest.CopyModel('static_synapse', 'ADAPT_syn')
+        nest.CopyModel('static_synapse', 'BAP_syn')
+        
+        neurons = [
+            create_cm_neuron(num_exc_neu_per_pop, params=exc_neu_params['equation_params']) for _ in range(num_exc_pop)
+        ]
 
     # Create inhibitory neurons
     inh_neu_params = nest_pms["inh_neu_params"]
@@ -55,12 +67,15 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads):
         exc_to_exc_delay_ms = min_syn_delay_ms + exc_t_ref_ms + 1.0
         inh_to_inh_delay_ms = min_syn_delay_ms + exc_t_ref_ms + 1.0
         conn_spec_dict = {"rule": "all_to_all", "allow_autapses": False}
-        if(use_standard_exc_nest_neuron):
+        if(use_single_compartment_environment):
             for i in range(num_exc_pop):
                 nest.Connect(neurons[i], neurons[i], conn_spec_dict,\
                     syn_spec={"weight": recurrent_weight, "delay": exc_to_exc_delay_ms})
         else:
-            assert("MC neuron not yet implemented")
+            #assert("MC neuron not yet implemented")
+            for i in range(num_exc_pop):
+                nest.Connect(neurons[i], neurons[i], conn_spec_dict,\
+                    syn_spec={"weight": recurrent_weight, "delay": exc_to_exc_delay_ms, 'receptor_type': 9})
         nest.Connect(inh_neurons, inh_neurons, conn_spec_dict,\
                     syn_spec={"weight": inh_to_inh_weight, "delay": inh_to_inh_delay_ms})
     
@@ -68,13 +83,18 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads):
     inh_to_exc_delay_ms = min_syn_delay_ms + exc_t_ref_ms + 0.55
     exc_to_inh_delay_ms = min_syn_delay_ms + 0.5
     for pop in neurons:
-        if use_standard_exc_nest_neuron:        
+        if use_single_compartment_environment:        
             nest.Connect(inh_neurons, pop, {"rule": "all_to_all"},\
                 syn_spec={"weight": inh_to_exc_weight, "delay": inh_to_exc_delay_ms})
             nest.Connect(pop, inh_neurons, {"rule": "all_to_all"},\
                 syn_spec={"weight": exc_to_inh_weight, "delay": exc_to_inh_delay_ms})
         else:
-            assert("MC neuron not yet implemented")
+            #assert("MC neuron not yet implemented")
+            nest.Connect(inh_neurons, pop, {"rule": "all_to_all"},\
+                syn_spec={"weight": -inh_to_exc_weight, "delay": inh_to_exc_delay_ms, 'receptor_type': 10})
+            nest.Connect(pop, inh_neurons, {"rule": "all_to_all"},\
+                syn_spec={"weight": exc_to_inh_weight, "delay": exc_to_inh_delay_ms})
+
 
     # Create and connect Poisson generators if enabled
     use_poisson_generators=nest_pms["network"]["use_poisson_generators"]
@@ -84,11 +104,12 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads):
         pgs = nest.Create("poisson_generator", num_poisson_generators, params={"rate": poisson_rate})
         poisson_weight=nest_pms["poisson"]["poisson_weight"]
         for i in range(num_exc_pop):
-            if use_standard_exc_nest_neuron:
+            if use_single_compartment_environment:
                 nest.Connect(pgs, neurons[i],\
                              syn_spec={"weight": poisson_weight, "delay": 1.0})
-        else:
-            assert("MC neuron not yet implemented")           
+            else:
+                #assert("MC neuron not yet implemented")
+                nest.Connect(pgs, neurons[i], syn_spec={"weight": poisson_weight, "delay": 1.0, 'receptor_type': 9})
 
     # DC current injection for all neurons if enabled
     use_dc_exc_injectors=nest_pms["use_dc_exc_injectors"]
@@ -102,11 +123,12 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads):
                 {"start": dc_exc_start_ms, "stop": dc_exc_stop_ms, "amplitude": amp})\
                 for amp in dc_exc_amplitudes]
         for i in range(num_exc_pop):
-            if use_standard_exc_nest_neuron:
+            if use_single_compartment_environment:
                 nest.Connect(dcgs[i], neurons[i],\
                     syn_spec={'weight': dc_exc_weight, 'delay': dc_exc_delay_ms})
             else:
-                assert("MC neuron not yet implemented")    
+                #assert("MC neuron not yet implemented")
+                nest.Connect(dcgs[i], neurons[i], syn_spec={'weight': dc_exc_weight, 'delay': dc_exc_delay, 'receptor_type': 0})
 
     # Specific DC current injection for inhibitory neurons
     use_dc_inh_injector=nest_pms["use_dc_inh_injector"]
@@ -127,6 +149,42 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads):
     for i in range(num_exc_pop):
         nest.Connect(neurons[i], spike_recorders[i])
     nest.Connect(inh_neurons, inh_spike_recorder)
+
+
+
+
+
+    #Check connections
+    for i in range(num_exc_pop):
+        print('-------- POP ', i)
+        print('Neurons in pop: ', len(neurons[i]))
+        conn = nest.GetConnections(source=neurons[i], target=neurons[i], synapse_model='static_synapse')
+        print('Connections exc-->exc:      ',len(conn))
+        if use_single_compartment_environment==False:        
+            conn = nest.GetConnections(source=neurons[i], synapse_model='REFRACT_syn')
+            print('Connections REFRACT:        ',len(conn))
+            conn = nest.GetConnections(source=neurons[i], synapse_model='ADAPT_syn')
+            print('Connections ADAPT:          ', len(conn))
+            conn = nest.GetConnections(source=neurons[i], synapse_model='BAP_syn')
+            print('Connections BAP:            ', len(conn))
+        conn = nest.GetConnections(source=inh_neurons, target=inh_neurons, synapse_model='static_synapse')
+        print('Connections inh-->inh:      ',len(conn))
+        
+        conn = nest.GetConnections(source=neurons[i], target=inh_neurons, synapse_model='static_synapse')
+        print('Connections inh-->exc:      ',len(conn)) 
+
+        conn = nest.GetConnections(source=inh_neurons, target=neurons[i], synapse_model='static_synapse')
+        print('Connections inh-->exc:      ',len(conn))
+        if use_poisson_generators:
+            conn = nest.GetConnections(source=pgs, target=neurons[i], synapse_model='static_synapse')
+            print('Connections pgs-->exc:      ',len(conn))
+        if use_dc_exc_injectors:
+            conn = nest.GetConnections(source=dcgs, target=neurons[i], synapse_model='static_synapse')
+            print('Connections psgs-->exc:     ',len(conn))
+
+
+
+
 
     # Run the simulation
     nest.Simulate(sim_pms["stop_ms"])
