@@ -1,6 +1,11 @@
-#please do not modify this file
-#INSTEAD, MODIFY tune_general_config.yaml
-brain_state: "NREM"
+#state can be either "awake" or "NREM"
+#brain_state: "NREM"
+brain_state: "awake"
+use_single_compartment_environment: True
+#exc_neu_params_filename: "Ca-AdEx_neural_params.yaml"
+inh_neu_params_filename: "standard_AdEx_inh_neural_params.yaml"
+#exc_neu_params_filename: "standard_AdEx_exc_neural_params.yaml" 
+exc_neu_params_filename: "MC-g0_like-exc_neural_params.yaml"
 
 network:
   use_exc_recurrency: true
@@ -11,12 +16,18 @@ network:
   use_dc_exc_injectors: false
   use_dc_inh_injector: true
 
+#conversion factor for synaptic conductances
+cf: 1.0
+#estimated 2024-0708
+#cf: 1.81
+
 weights:
   awake:
     recurrent_weight: 9.5
     inh_to_exc_weight: -0.85
     exc_to_inh_weight: 7.0
     inh_to_inh_weight: -1.0 
+    #conversion factor for max synaptic conductance 
   NREM:
     recurrent_weight: 19.0
     inh_to_exc_weight: -1.7

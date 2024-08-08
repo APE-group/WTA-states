@@ -1,23 +1,57 @@
 #state can be either "awake" or "NREM"
-brain_state: "NREM"
-#brain_state: "awake"
+#brain_state: "NREM"
+brain_state: "awake"
+use_single_compartment_environment: True
+#exc_neu_params_filename: "Ca-AdEx_neural_params.yaml"
+inh_neu_params_filename: "standard_AdEx_inh_neural_params.yaml"
+#exc_neu_params_filename: "standard_AdEx_exc_neural_params.yaml" 
+exc_neu_params_filename: "MC-g0_like-exc_neural_params.yaml"
 
 network:
+  #use_exc_recurrency: true
   num_exc_pop: 4  # Number of excitatory populations
   #num_exc_neu_per_pop: 20  # Number of excitatory AdEx neurons per pop
   #use_poisson_generators: true
   #num_poisson_generators: 20
+  #use_dc_exc_injectors: false
+  #use_dc_inh_injector: true
 
-#weights:
-  #awake:
-  #NREM:
+#conversion factor for synaptic conductances
+cf: 1.0
+#estimated 2024-0708
+#cf: 1.81
 
-#poisson:
+weights:
   #awake:
-    #poisson_noise_spreading_factor: 1.0
-  #NREM:
-    #poisson_noise_spreading_factor: 1.0
+    #recurrent_weight: 9.5
+    #inh_to_exc_weight: -0.85
+    #exc_to_inh_weight: 7.0
+    #inh_to_inh_weight: -1.0 
+  NREM:
+    recurrent_weight: 19.0
+    #inh_to_exc_weight: -1.7
+    #exc_to_inh_weight: 7.0 
+    #inh_to_inh_weight: -1.0
+
+poisson:
+  awake:
+    poisson_noise_spreading_factor: 4.0
+    poisson_basic_rate: 600.0
+    poisson_delta: 0.0
+    poisson_weight: 0.6
+  NREM:
+    poisson_noise_spreading_factor: 4.0
+    #for standard adex poisson basic rate 600
+    poisson_basic_rate: 300.0
+    poisson_delta: 0.0
+    poisson_weight: 0.6
 
 #dc_exc:
+  #amplitudes: [0, 0]
+  #weight: 1.0
+  #delay: 1.0
 
 #dc_inh:
+  #amplitude: 0.0
+  #weight: 1.0
+  #delay: 1.0

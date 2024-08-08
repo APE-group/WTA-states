@@ -128,7 +128,7 @@ def exc_pops_rastegram_plot(cropped_events,num_exc_pop, crop_pms):
     ax.set_ylabel("Neuron ID")
     ax.legend()
     plt.tight_layout()
-    plt.show()
+    #plt.show()
 
 # plot of rastegram of inhibitories
 def inh_rastergram_plot(cropped_inh_events, crop_pms):
@@ -142,7 +142,7 @@ def inh_rastergram_plot(cropped_inh_events, crop_pms):
     ax.set_ylabel("Neuron ID")
     ax.legend()
     plt.tight_layout()
-    plt.show()
+    #plt.show()
     
 def combine_spike_times_in_single_trace(cropped_events, num_pops):
     combined_spike_times = []
@@ -189,7 +189,7 @@ def firing_rates_plot(time_points, firing_rate, crop_pms):
     ax.set_xlabel("Time (ms)")
     ax.set_ylabel("Firing Rate (Hz)")
     ax.set_title("Firing Rates")
-    plt.show()
+    #plt.show()
     
 def gaussian_kernel(duration_ms, sampling_rate_Hz, std_dev_ms):
     local_debug=False
@@ -234,7 +234,7 @@ def kernel_plot(kernel, sampling_rate_Hz):
     ax.set_xlabel("Time (ms)")
     ax.set_ylabel("Kernel amplitude (density / ms)")
     ax.set_title("Kernel")
-    plt.show()
+    #plt.show()
     
 def smooth_signal(signal, kernel):
     """
@@ -301,7 +301,7 @@ def plot_spectrum_with_error_bands(segment_duration_ms, max_plot_freq_Hz, spectr
     plt.annotate(f'Max freq: {max_freq_Hz:.2f} Hz', xy=(max_freq_Hz, smoothed_mean_spectrum[max_index]), xytext=(max_freq_Hz, 0.1*np.min(smoothed_mean_spectrum)),
                  arrowprops=dict(facecolor='black', shrink=0.05, width=1, headwidth=8), verticalalignment='bottom')
 
-    plt.show()
+    #plt.show()
 
 def compute_spectrum_with_error_bands(data, analysis_pms, max_plot_freq_Hz, smoothing_length):
     segment_duration_ms = analysis_pms["spectrogram_window_ms"]
@@ -333,5 +333,5 @@ def plot_spectrogram(time_origin_ms, data, analysis_pms, max_plot_freq_Hz):
     # Add a color bar on the right to show the numerical values of different colors
     plt.colorbar(c, ax=ax, label='Intensity (dB)')
 
-    plt.show()
+    #plt.show()
     

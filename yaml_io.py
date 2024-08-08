@@ -13,12 +13,20 @@ def recursive_update(orig_dict, new_dict):
             orig_dict[key] = value
 
 def read_sim_and_recording_times_yaml(verbose):
-    with open("sim_and_recording_times.yaml", 'r') as file:
+    default_sim_and_recording_times_file_name = "basic_sim_and_recording_times.yaml"
+    tune_sim_and_recording_times_file_name = "tune_sim_and_recording_times.yaml"
+    if verbose:
+        print("IN read_sim_and_recording_times_yaml:") 
+        print("opening file:", default_sim_and_recording_times_file_name)
+    with open(default_sim_and_recording_times_file_name, 'r') as file:
         times = yaml.safe_load(file)
     if verbose:
-        print("ORIGINAL YAML", times)
+        print("DEFAULT CONFIG (possibly to be TUNED):", times)
         print("----")
-    with open("tune_sim_and_recording_times.yaml", 'r') as file:
+    if verbose:
+        print("IN read_sim_and_recording_times_yaml:") 
+        print("opening file:", tune_sim_and_recording_times_file_name)
+    with open(tune_sim_and_recording_times_file_name, 'r') as file:
         tune_times = yaml.safe_load(file)
         
     # Use the recursive update function
@@ -38,31 +46,34 @@ def read_sim_and_recording_times_yaml(verbose):
 
 def read_general_config_yaml(verbose):
     # Load standard network parameters from YAML file
-    with open("general_config.yaml", 'r') as file:
+    general_config_file_name = "basic_general_config.yaml"
+    tune_config_file_name = "tune_general_config.yaml"
+    if verbose:
+        print("read_general_config_yaml:")
+        print("read_general_config_yaml: opening file:",general_config_file_name)  
+    with open(general_config_file_name, 'r') as file:
         config = yaml.safe_load(file)
     if verbose:
-        print("ORIGINAL CONFIG", config)
-        print("----")     
-    with open("tune_general_config.yaml", 'r') as file:
+        print("read_general_config_yaml: starting config (later tuned by this routine)", config)
+        print("----")
+        print("read_general_config_yaml: opening file:",tune_config_file_name)  
+    with open(tune_config_file_name, 'r') as file:
         tune_config = yaml.safe_load(file)
     
     # Use the recursive update function
     recursive_update(config, tune_config)
 
     if verbose:
-        print("TUNED CONFIG", config)
+        print("read_general_config_yaml: TUNED CONFIG", config)
         print("----")     
     return config
 
-def read_neural_parameters(is_standard_nest,is_verbose):
+def read_neural_parameters(neural_param_file_name,verbose):
     # Load neural parameters from a YAML file
-    if is_standard_nest:
-        neural_param_file = "standard_nest_neural_params.yaml" 
-    else:
-        print("MC not yet implemented")
-        assert False
-    with open(neural_param_file, 'r') as file:
-        params = yaml.safe_load(file)
-    exc_pms = params['excitatory']
-    inh_pms = params['inhibitory']
-    return exc_pms,inh_pms
+    if verbose:
+        print("read_neural_parameters opening file:", neural_param_file_name) 
+    with open(neural_param_file_name, 'r') as file:
+        neural_params = yaml.safe_load(file)
+    print("read_neural_parameters loaded the following parameters:", neural_params)
+    return neural_params
+    

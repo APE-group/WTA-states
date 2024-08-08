@@ -1,0 +1,17 @@
+multi_compartment: False
+neuron_kind: "excitatory"
+equation_params:
+    a: 0
+    t_ref: 0.0
+    Delta_T: 2.0
+    C_m: 362.5648533496359
+    g_L: 6.666182946322264
+    tau_w: 500.0
+    V_th: -50.0
+    V_peak: -40.0
+    b_awake: 40.0
+    E_L_awake: -58.656837907086036
+    V_reset_awake: -62.12885359171539
+    b_NREM: 200.0
+    E_L_NREM: -63.656837907086036
+    V_reset_NREM: -62.12885359171539

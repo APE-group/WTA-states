@@ -21,8 +21,10 @@ from yaml_io import *
 # In[2]:
 
 
-is_standard_nest=True
-is_verbose=False
+NEST_version = nest.__version__
+print("NEST version",NEST_version)
+
+is_verbose=True
 debug_mode = True
 high_noise = True
 nest_pms={}
@@ -35,7 +37,11 @@ config = read_general_config_yaml(is_verbose)
 
 # Extract config subsets of params 
 brain_state = config['brain_state']
+use_single_compartment_environment = config['use_single_compartment_environment']
+exc_pms_file_name = config['exc_neu_params_filename']
+inh_pms_file_name = config['inh_neu_params_filename']
 network = config['network']
+cf = config['cf']
 weights = config['weights']
 poisson = config['poisson']
 dc_exc = config['dc_exc']
@@ -46,7 +52,9 @@ dc_inh = config['dc_inh']
 
 
 #reading neural parameters
-exc_pms,inh_pms = read_neural_parameters(is_standard_nest,is_verbose)
+
+exc_pms = read_neural_parameters(exc_pms_file_name, is_verbose)
+inh_pms = read_neural_parameters(inh_pms_file_name, is_verbose)
 
 nest_pms["exc_pms"]=inh_pms
 nest_pms["exc_pms"]=exc_pms
@@ -70,18 +78,36 @@ min_syn_delay_ms = 3.0 if exc_t_ref_ms else 0.0
 
 
 use_recurrency = network["use_exc_recurrency"]
+if is_verbose:
+    print("use_exc_recurrency:",use_recurrency)
+    print("weights:",weights)
+
+
+# In[6]:
+
+
 if use_recurrency:
     if brain_state == "awake":
         weights=weights['awake']
     else:
-        weights=weights['NREM']                   
-    recurrent_weight = weights['recurrent_weight'] if use_recurrency else 0.0
-    inh_to_exc_weight = weights["inh_to_exc_weight"]
+        weights=weights['NREM'] 
+    recurrent_weight = weights['recurrent_weight'] * cf if use_recurrency else 0.0
+    inh_to_exc_weight = weights["inh_to_exc_weight"] * cf
     exc_to_inh_weight = weights["exc_to_inh_weight"]
-    inh_to_inh_weight = weights["inh_to_inh_weight"]  
+    inh_to_inh_weight = weights["inh_to_inh_weight"]
 
 
-# In[6]:
+# In[7]:
+
+
+if is_verbose:
+    print("recurrent_weight:", recurrent_weight)
+    print("inh_to_exc_weight", inh_to_exc_weight)
+    print("exc_to_inh_weight", exc_to_inh_weight)
+    print("inh_to_inh_weight", inh_to_inh_weight)
+
+
+# In[8]:
 
 
 use_poisson_generators = network["use_poisson_generators"]
@@ -97,7 +123,7 @@ if use_poisson_generators:
             assert(false==true)
     poisson_spreading_factor=poisson['poisson_noise_spreading_factor']
     poisson_rate = poisson['poisson_basic_rate']/ poisson_spreading_factor
-    poisson_weight = poisson['poisson_weight'] * poisson_spreading_factor
+    poisson_weight = poisson['poisson_weight'] * poisson_spreading_factor * cf
     poisson_delta = poisson["poisson_delta"]
 
 # Create rate arrays for Poisson generators
@@ -105,7 +131,7 @@ if use_poisson_generators:
 #print("number of poisson generators",len(poisson_rate_arrays))
 
 
-# In[7]:
+# In[9]:
 
 
 #dc inhjectors to excitatory neurons
@@ -127,45 +153,105 @@ if use_dc_inh_injector:
     dc_inh_stop = times["sim_pms"]["stop_ms"]
 
 
-# In[8]:
+# In[10]:
 
 
-exc_neu_params={
-            "a": exc_pms['a'],
-            "b": exc_pms['b_awake'] if brain_state == "awake" else exc_pms['b_sleep'],
-            "t_ref": exc_pms['t_ref'],
-            "Delta_T": exc_pms['Delta_T'],
-            "C_m": exc_pms['C_m'],
-            "g_L": exc_pms['g_L'],
-            "E_L": exc_pms['E_L_awake'] if brain_state == "awake" else exc_pms['E_L_sleep'],
-            "V_reset": exc_pms['V_reset_awake'] if brain_state == "awake" else exc_pms['V_reset_sleep'],
-            "tau_w": exc_pms['tau_w'],
-            "V_th": exc_pms['V_th'],
-            "V_peak": exc_pms['V_peak'],
-        }
+if is_verbose:
+    print ("exc neu params before brain-state specific tuning:", exc_pms)
 
 
-inh_neu_params={
-        "a": inh_pms['a'],
-        "b": inh_pms['b'],
-        "t_ref": inh_pms['t_ref'],
-        "Delta_T": inh_pms['Delta_T'],
-        "C_m": inh_pms['C_m'],
-        "g_L": inh_pms['g_L'],
-        "E_L": inh_pms['E_L'],
-        "V_reset": inh_pms['V_reset'],
-        "tau_w": inh_pms['tau_w'],
-        "V_th": inh_pms['V_th'],
-        "V_peak": inh_pms['V_peak'],
+# In[11]:
+
+
+if is_verbose:
+    print ("inh neu params before brain-state specific tuning:", inh_pms)
+
+
+# In[12]:
+
+
+assert(exc_pms['neuron_kind']=="excitatory")
+if exc_pms['multi_compartment']==False:
+    print("setting brain state INDEPENDENT neural params in single-comp neu")
+    # Set brain state independent parameters for single-compartment neuron
+    exc_neu_params={}
+    exc_neu_params['receptors']={} 
+    exc_neu_params['equation_params'] = {
+        "a": exc_pms['equation_params']['a'],
+        "t_ref": exc_pms['equation_params']['t_ref'],
+        "Delta_T": exc_pms['equation_params']['Delta_T'],
+        "C_m": exc_pms['equation_params']['C_m'],
+        "g_L": exc_pms['equation_params']['g_L'],
+        "tau_w": exc_pms['equation_params']['tau_w'],
+        "V_th": exc_pms['equation_params']['V_th'],
+        "V_peak": exc_pms['equation_params']['V_peak'],
     }
+    print("setting brain state DEPENDENT neural params in single-comp neu")
+    # Check if brain_state variable is set correctly
+    assert(brain_state in ["awake", "NREM"])
+    # Set brain state dependent parameters for single-compartment neuron
+    if brain_state == "awake":
+        brain_state_dependent_params = {
+            "b": exc_pms['equation_params'].get('b_awake', None),
+            "E_L": exc_pms['equation_params'].get('E_L_awake', None),
+            "V_reset": exc_pms['equation_params'].get('V_reset_awake', None)
+        }
+        print(f"Brain state 'awake' parameters: {brain_state_dependent_params}")
+        exc_neu_params['equation_params'].update(brain_state_dependent_params)
+    elif brain_state == "NREM":
+        brain_state_dependent_params = {
+            "b": exc_pms['equation_params'].get('b_NREM', None),
+            "E_L": exc_pms['equation_params'].get('E_L_NREM', None),
+            "V_reset": exc_pms['equation_params'].get('V_reset_NREM', None)
+        }
+        exc_neu_params['equation_params'].update(brain_state_dependent_params)
+else:
+    assert(exc_pms['multi_compartment']==True)
+    assert(use_single_compartment_environment==False)
+    if is_verbose:
+        print("setting brain state dependent neural params in multi-comp neu")
+    exc_neu_params = {}
+    exc_neu_params['receptors']=exc_pms['receptors']
+    exc_neu_params['equation_params']={}
+    exc_neu_params['equation_params'].update(exc_pms['equation_params'])
+    # Set brain state dependent parameters for multi-compartment neuron
+    if brain_state == "awake":
+        print("for multi-compartment neurons the default set of parameters is the awake one")
+    elif brain_state == "NREM":
+        brain_state_dependent_params = {
+            'b': exc_pms['NREM_changers'].get('b_NREM', None),
+            'e_L_s': exc_pms['equation_params'].get('e_L_s', None) + exc_pms['NREM_changers'].get('delta_e_L_s_NREM', 0),
+            'e_L_d': exc_pms['equation_params'].get('e_L_d', None) + exc_pms['NREM_changers'].get('delta_e_L_d_NREM', 0),
+            'g_C_d': exc_pms['equation_params'].get('g_C_d', None) * exc_pms['NREM_changers'].get('g_C_d_NREM_multiplier', 1)
+        }
+        print(f"Brain state 'sleep' parameters for multi-compartment neuron: {brain_state_dependent_params}")
+        exc_neu_params['equation_params'].update(brain_state_dependent_params)
+
+if is_verbose:
+    print("exc neu params AFTER brain-state specific tuning:", exc_neu_params)
 
 
-# In[9]:
+# In[13]:
+
+
+assert(inh_pms['neuron_kind']=="inhibitory")
+assert(inh_pms['multi_compartment']==False)
+inh_neu_params=inh_pms['equation_params']
+
+
+# In[14]:
+
+
+if is_verbose:
+    print ("inh neu params AFTER brain-state specific tuning:", inh_neu_params)
+
+
+# In[15]:
 
 
 nest_pms={}
 nest_pms["sim_pms"]=times["sim_pms"]
-nest_pms["use_standard_exc_nest_neuron"]=True
+nest_pms["use_single_compartment_environment"]= use_single_compartment_environment
 nest_pms["exc_neu_params"]=exc_neu_params
 nest_pms["inh_neu_params"]=inh_neu_params
 nest_pms["exc_t_ref_ms"]=exc_t_ref_ms
@@ -216,13 +302,22 @@ if use_dc_inh_injector:
     nest_pms["dc_inh"]["delay_ms"]=dc_inh_delay 
 
 
-# In[10]:
+# In[16]:
 
 
 print("nest_pms",nest_pms)
 
 
-# In[11]:
+# In[17]:
+
+
+NEST_version = nest.__version__
+if NEST_version == "3.7.0" and nest_pms["use_single_compartment_environment"]==False:
+    print("ASSERTION ERROR: Ca-AdEx multi-compartment neuron not supported by this NEST version", NEST_version)
+    assert(False)
+
+
+# In[18]:
 
 
 num_threads=4
@@ -230,7 +325,7 @@ sim_completed, spike_recorders, inh_spike_recorder = nest_reset_create_connect_s
 print("sim_completed", sim_completed)
 
 
-# In[12]:
+# In[19]:
 
 
 d_inh = nest.GetStatus(inh_spike_recorder, "events")[0]
@@ -242,7 +337,7 @@ d_inh = nest.GetStatus(inh_spike_recorder, "events")[0]
 
 
 
-# In[13]:
+# In[20]:
 
 
 #before analysis, preliminary sim look 
@@ -255,7 +350,7 @@ preliminary_sim_look(debug_mode,nest_pms, spike_recorders, inh_spike_recorder, n
 
 
 
-# In[14]:
+# In[21]:
 
 
 #setting the analysis parameters
@@ -319,21 +414,21 @@ print(cropped_inh_events)
 analysis_pms_print(nest_pms["recording_pms"],crop_pms,analysis_pms)
 
 
-# In[15]:
+# In[22]:
 
 
 #plot of the rastegram of excitatory neurons
 exc_pops_rastegram_plot(cropped_events, num_exc_pop, crop_pms)
 
 
-# In[16]:
+# In[23]:
 
 
 #plot of the rastegram of inhibitory neurons
 inh_rastergram_plot(cropped_inh_events, crop_pms)
 
 
-# In[17]:
+# In[24]:
 
 
 #preparing to smooth the single spike with the form of a spike event
@@ -350,14 +445,14 @@ print("len of kernel",len(single_spike_kernel))
 kernel_plot(single_spike_kernel, sampling_rate_Hz)
 
 
-# In[18]:
+# In[25]:
 
 
 #collect spike spikes from all populations in a single vector 
 single_trace_spike_times = combine_spike_times_in_single_trace(cropped_events, num_exc_pop)
 
 
-# In[19]:
+# In[26]:
 
 
 #Calculate combined firing rates
@@ -365,7 +460,7 @@ time_points, combined_firing_rate = \
     calculate_firing_rate(crop_pms, analysis_pms, single_trace_spike_times, num_exc_pop*num_exc_neu_per_pop)
 
 
-# In[20]:
+# In[27]:
 
 
 instantaneous_firing_rate_plot=False
@@ -374,7 +469,7 @@ if instantaneous_firing_rate_plot:
     firing_rates_plot(time_points, combined_firing_rate, crop_pms) 
 
 
-# In[21]:
+# In[28]:
 
 
 smoothed_spikes_firing_rate = smooth_signal(combined_firing_rate, single_spike_kernel)
@@ -383,7 +478,7 @@ print("type of smoothed signal", type(smoothed_spikes_firing_rate))
 firing_rates_plot(time_points, smoothed_spikes_firing_rate, crop_pms) 
 
 
-# In[22]:
+# In[29]:
 
 
 #dividing the data in segments for reliable spectral analysis
@@ -392,7 +487,7 @@ smoothing_length=20 #frequency samples
 compute_spectrum_with_error_bands(smoothed_spikes_firing_rate, analysis_pms, max_plot_freq_Hz, smoothing_length)
 
 
-# In[23]:
+# In[30]:
 
 
 max_plot_freq_Hz=100
@@ -406,7 +501,7 @@ plot_spectrogram(time_points[0],\
 #plot_spectrogram(time_points[0], combined_firing_rate, analysis_pms)
 
 
-# In[24]:
+# In[31]:
 
 
 #smoothing the spike gaussians with synaptic times for ECG/LFP/ECoG like analysis
@@ -423,14 +518,14 @@ print("len of kernel",len(tissue_response_kernel))
 kernel_plot(tissue_response_kernel, sampling_rate_Hz)
 
 
-# In[25]:
+# In[32]:
 
 
 #smoothed_spikes_firing_rate = smooth_signal(combined_firing_rate, single_spike_kernel)
 tissue_response_rate = smooth_signal(smoothed_spikes_firing_rate, tissue_response_kernel)
 
 
-# In[26]:
+# In[33]:
 
 
 print("len of tissue signal", len(tissue_response_rate))
@@ -438,7 +533,7 @@ print("type of tissue signal", type(tissue_response_rate))
 firing_rates_plot(time_points, tissue_response_rate, crop_pms) 
 
 
-# In[27]:
+# In[34]:
 
 
 #dividing the data in segments for reliable spectral analysis
@@ -447,7 +542,7 @@ smoothing_length=4 #frequency samples
 compute_spectrum_with_error_bands(tissue_response_rate, analysis_pms, max_plot_freq_Hz, smoothing_length)
 
 
-# In[28]:
+# In[35]:
 
 
 max_plot_freq_Hz=40
@@ -458,6 +553,12 @@ plot_spectrogram(time_points[0],\
 
 #Spectrogram plot
 #plot_spectrogram(time_points[0], combined_firing_rate, analysis_pms)
+
+
+# In[ ]:
+
+
+plt.show()
 
 
 # In[ ]:
