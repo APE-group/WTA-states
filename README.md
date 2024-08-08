@@ -2,6 +2,8 @@
 Exercises combining brain states and soft winner takes all
 
 LOG OF MAIN EVENTS (from recent to past)
+2024-0708 introduced multicompartment support solving issue#3
+
 2024-0510 
 Added capability of spectral analysis with error bands, by pull request #1 that solves issue #2 
 
