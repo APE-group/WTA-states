@@ -22,8 +22,6 @@ from yaml_io import *
 
 
 NEST_version = nest.__version__
-print("NEST version",NEST_version)
-
 is_verbose=True
 debug_mode = True
 high_noise = True
@@ -46,6 +44,8 @@ weights = config['weights']
 poisson = config['poisson']
 dc_exc = config['dc_exc']
 dc_inh = config['dc_inh']
+
+print("NEST version",NEST_version)
 
 
 # In[3]:
@@ -250,6 +250,9 @@ if is_verbose:
 
 
 nest_pms={}
+# Add contextual poisson signal configuration to nest_pms
+if 'contextual_poisson' in config:
+    nest_pms['contextual_poisson'] = config['contextual_poisson']
 nest_pms["sim_pms"]=times["sim_pms"]
 nest_pms["use_single_compartment_environment"]= use_single_compartment_environment
 nest_pms["exc_neu_params"]=exc_neu_params
@@ -555,7 +558,7 @@ plot_spectrogram(time_points[0],\
 #plot_spectrogram(time_points[0], combined_firing_rate, analysis_pms)
 
 
-# In[ ]:
+# In[36]:
 
 
 plt.show()

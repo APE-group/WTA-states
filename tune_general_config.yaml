@@ -9,7 +9,7 @@ exc_neu_params_filename: "MC-g0_like-exc_neural_params.yaml"
 
 network:
   #use_exc_recurrency: true
-  num_exc_pop: 4  # Number of excitatory populations
+  num_exc_pop: 4  # Number of excitatory populations 
   #num_exc_neu_per_pop: 20  # Number of excitatory AdEx neurons per pop
   #use_poisson_generators: true
   #num_poisson_generators: 20
@@ -22,8 +22,9 @@ cf: 1.0
 #cf: 1.81
 
 weights:
-  #awake:
-    #recurrent_weight: 9.5
+  awake:
+    #recurrent_weight: 0.0
+    recurrent_weight: 9.5
     #inh_to_exc_weight: -0.85
     #exc_to_inh_weight: 7.0
     #inh_to_inh_weight: -1.0 
@@ -33,16 +34,26 @@ weights:
     #exc_to_inh_weight: 7.0 
     #inh_to_inh_weight: -1.0
 
+contextual_poisson:
+  awake:
+    basic_rate: 3000.0
+    poisson_weight: 0.6 
+    spreading_factor: 4
+    start_time: 6000.
+    stop_time: 6500.
+    target_pop: 2
+
 poisson:
   awake:
     poisson_noise_spreading_factor: 4.0
     poisson_basic_rate: 600.0
+    #poisson_basic_rate: 600.0
     poisson_delta: 0.0
     poisson_weight: 0.6
   NREM:
     poisson_noise_spreading_factor: 4.0
     #for standard adex poisson basic rate 600
-    poisson_basic_rate: 300.0
+    poisson_basic_rate: 250.0
     poisson_delta: 0.0
     poisson_weight: 0.6
 

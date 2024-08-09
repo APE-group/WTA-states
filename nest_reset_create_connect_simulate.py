@@ -27,7 +27,6 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads):
             for _ in range(num_exc_pop)
         ]
     else:
-        #assert False, "Multi compartment non supported"
         # Create excitatory Ca-AdEx neuron populations
         nest.CopyModel('static_synapse', 'REFRACT_syn')
         nest.CopyModel('static_synapse', 'ADAPT_syn')
@@ -45,7 +44,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads):
         num_inh_neu,
         params=inh_neu_params,
     )
-    
+
     # Spike recorders for excitatory and inhibitory populations
     recording_pms=nest_pms["recording_pms"]
     spike_recorders = [nest.Create("spike_recorder",
@@ -53,6 +52,11 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads):
                    for _ in range(num_exc_pop)]
     inh_spike_recorder = nest.Create("spike_recorder", 
         {"start": recording_pms["start_ms"], "stop": recording_pms["stop_ms"]})
+
+    # Connect spike detectors
+    for i in range(num_exc_pop):
+        nest.Connect(neurons[i], spike_recorders[i])
+    nest.Connect(inh_neurons, inh_spike_recorder)
 
     # Connection specifications
     exc_t_ref_ms=nest_pms["exc_t_ref_ms"]
@@ -72,7 +76,6 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads):
                 nest.Connect(neurons[i], neurons[i], conn_spec_dict,\
                     syn_spec={"weight": recurrent_weight, "delay": exc_to_exc_delay_ms})
         else:
-            #assert("MC neuron not yet implemented")
             for i in range(num_exc_pop):
                 nest.Connect(neurons[i], neurons[i], conn_spec_dict,\
                     syn_spec={"weight": recurrent_weight, "delay": exc_to_exc_delay_ms, 'receptor_type': 9})
@@ -89,12 +92,10 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads):
             nest.Connect(pop, inh_neurons, {"rule": "all_to_all"},\
                 syn_spec={"weight": exc_to_inh_weight, "delay": exc_to_inh_delay_ms})
         else:
-            #assert("MC neuron not yet implemented")
             nest.Connect(inh_neurons, pop, {"rule": "all_to_all"},\
                 syn_spec={"weight": -inh_to_exc_weight, "delay": inh_to_exc_delay_ms, 'receptor_type': 10})
             nest.Connect(pop, inh_neurons, {"rule": "all_to_all"},\
                 syn_spec={"weight": exc_to_inh_weight, "delay": exc_to_inh_delay_ms})
-
 
     # Create and connect Poisson generators if enabled
     use_poisson_generators=nest_pms["network"]["use_poisson_generators"]
@@ -108,8 +109,35 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads):
                 nest.Connect(pgs, neurons[i],\
                              syn_spec={"weight": poisson_weight, "delay": 1.0})
             else:
-                #assert("MC neuron not yet implemented")
                 nest.Connect(pgs, neurons[i], syn_spec={"weight": poisson_weight, "delay": 1.0, 'receptor_type': 9})
+
+    # Add contextual poisson signal if configured
+    if 'contextual_poisson' in nest_pms and 'awake' in nest_pms['contextual_poisson']:
+        contextual_conf = nest_pms['contextual_poisson']['awake']
+        if all(key in contextual_conf for\
+               key in ['target_pop', 'start_time', 'stop_time', 'spreading_factor', 'basic_rate', 'poisson_weight']):
+            target_pop = contextual_conf['target_pop']
+            start_time = contextual_conf['start_time']
+            stop_time = contextual_conf['stop_time']
+            spreading_factor = contextual_conf['spreading_factor']
+            basic_rate = contextual_conf['basic_rate']
+            poisson_weight = contextual_conf['poisson_weight']
+        
+            # Create Poisson generator for contextual signal
+            contextual_poisson_gen = nest.Create('poisson_generator', 1, {'rate': basic_rate})
+        
+            # Set the time of activation and deactivation for the generator
+            nest.SetStatus(contextual_poisson_gen, {'start': start_time, 'stop': stop_time}) 
+
+            # Adjust connection parameters based on spreading_factor and poisson_weight
+            syn_spec = {'weight': poisson_weight * spreading_factor, "delay": 1.0,}
+
+            # Connect the generator to the target population
+            if use_single_compartment_environment:             
+                nest.Connect(contextual_poisson_gen, neurons[target_pop], syn_spec=syn_spec)
+            else:
+                syn_spec.update({'receptor_type':9})
+                nest.Connect(contextual_poisson_gen, neurons[target_pop], syn_spec=syn_spec)
 
     # DC current injection for all neurons if enabled
     use_dc_exc_injectors=nest_pms["use_dc_exc_injectors"]
@@ -145,45 +173,6 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads):
         nest.Connect(dc_inh_generator, inh_neurons,\
                      syn_spec={'weight': dc_inh_weight, 'delay': dc_inh_delay_ms})
         
-    # Connect spike detectors
-    for i in range(num_exc_pop):
-        nest.Connect(neurons[i], spike_recorders[i])
-    nest.Connect(inh_neurons, inh_spike_recorder)
-
-
-
-
-
-    #Check connections
-    for i in range(num_exc_pop):
-        print('-------- POP ', i)
-        print('Neurons in pop: ', len(neurons[i]))
-        conn = nest.GetConnections(source=neurons[i], target=neurons[i], synapse_model='static_synapse')
-        print('Connections exc-->exc:      ',len(conn))
-        if use_single_compartment_environment==False:        
-            conn = nest.GetConnections(source=neurons[i], synapse_model='REFRACT_syn')
-            print('Connections REFRACT:        ',len(conn))
-            conn = nest.GetConnections(source=neurons[i], synapse_model='ADAPT_syn')
-            print('Connections ADAPT:          ', len(conn))
-            conn = nest.GetConnections(source=neurons[i], synapse_model='BAP_syn')
-            print('Connections BAP:            ', len(conn))
-        conn = nest.GetConnections(source=inh_neurons, target=inh_neurons, synapse_model='static_synapse')
-        print('Connections inh-->inh:      ',len(conn))
-        
-        conn = nest.GetConnections(source=neurons[i], target=inh_neurons, synapse_model='static_synapse')
-        print('Connections inh-->exc:      ',len(conn)) 
-
-        conn = nest.GetConnections(source=inh_neurons, target=neurons[i], synapse_model='static_synapse')
-        print('Connections inh-->exc:      ',len(conn))
-        if use_poisson_generators:
-            conn = nest.GetConnections(source=pgs, target=neurons[i], synapse_model='static_synapse')
-            print('Connections pgs-->exc:      ',len(conn))
-        if use_dc_exc_injectors:
-            conn = nest.GetConnections(source=dcgs, target=neurons[i], synapse_model='static_synapse')
-            print('Connections psgs-->exc:     ',len(conn))
-
-
-
 
 
     # Run the simulation
