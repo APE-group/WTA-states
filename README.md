@@ -3,12 +3,13 @@ Exercises combining brain states and soft winner takes all
 
 LOG OF MAIN EVENTS (from recent to past)
 
-2024-0808 Solving issue #5: "Add basic contextual signal reaching a single assembly with a start and stop time"it is the product of branch: "#5-add-basic-contextual-signal..."
+Release 2024-0816 Solving issue #9: "encapsulate the first part of the main in a nest_parameters_preparation() function"
 
-2024-0807 introduced multicompartment support solving issue#3
+Release 2024-0808 Solving issue #5: "Add basic contextual signal reaching a single assembly with a start and stop time"it is the product of branch: "#5-add-basic-contextual-signal..."
 
-2024-0510 
-Added capability of spectral analysis with error bands, by pull request #1 that solves issue #2 
+Release 2024-0807 introduced multicompartment support solving issue#3: "Support for runs with both single and multi-compartment neurons"
+
+Release 2024-0510 Added capability of spectral analysis with error bands, by pull request #1 that solves issue #2: "Need for spectral analysis with error band and detection of maxima"
 
 2024-0430: novel features:
 - all parameters stored in reference yaml files
