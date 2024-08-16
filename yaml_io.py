@@ -13,6 +13,7 @@ def recursive_update(orig_dict, new_dict):
             orig_dict[key] = value
 
 def read_sim_and_recording_times_yaml(verbose):
+    print("in read_sim_and_recording_times_yaml: verbose mode is", verbose)
     default_sim_and_recording_times_file_name = "basic_sim_and_recording_times.yaml"
     tune_sim_and_recording_times_file_name = "tune_sim_and_recording_times.yaml"
     if verbose:
@@ -45,6 +46,7 @@ def read_sim_and_recording_times_yaml(verbose):
     return times
 
 def read_general_config_yaml(verbose):
+    print("in read_general_config_yaml: verbose mode is", verbose)
     # Load standard network parameters from YAML file
     general_config_file_name = "basic_general_config.yaml"
     tune_config_file_name = "tune_general_config.yaml"
@@ -68,12 +70,14 @@ def read_general_config_yaml(verbose):
         print("----")     
     return config
 
-def read_neural_parameters(neural_param_file_name,verbose):
+def read_neural_parameters(neural_param_file_name, verbose):
+    print("in read_neural_parameters: verbose mode is", verbose)
     # Load neural parameters from a YAML file
     if verbose:
         print("read_neural_parameters opening file:", neural_param_file_name) 
     with open(neural_param_file_name, 'r') as file:
         neural_params = yaml.safe_load(file)
-    print("read_neural_parameters loaded the following parameters:", neural_params)
+    if verbose:    
+        print("read_neural_parameters loaded the following parameters:", neural_params)
     return neural_params
     
