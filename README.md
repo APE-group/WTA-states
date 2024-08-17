@@ -3,6 +3,8 @@ Exercises combining brain states and soft winner takes all
 
 LOG OF MAIN EVENTS (from recent to past)
 
+Commit 2024-0817 Solving issue #12 create crop_and_plot yaml files
+
 Release 2024-0816 Solving issue #9: "encapsulate the first part of the main in a nest_parameters_preparation() function"
 
 Release 2024-0808 Solving issue #5: "Add basic contextual signal reaching a single assembly with a start and stop time"it is the product of branch: "#5-add-basic-contextual-signal..."
