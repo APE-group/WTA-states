@@ -3,6 +3,9 @@ Exercises combining brain states and soft winner takes all
 
 LOG OF MAIN EVENTS (from recent to past)
 
+Release 2024-0817 It Solves both issue #11 and issue #12. Now the main launches a single activity analysis function. 
+All parameters for the analysis and the plot of the activity can be set in the basic_ and tune_ crop_and_plot.yaml files.
+
 Commit 2024-0817 Solving issue #12 create crop_and_plot yaml files
 
 Release 2024-0816 Solving issue #9: "encapsulate the first part of the main in a nest_parameters_preparation() function"
