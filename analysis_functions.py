@@ -334,4 +334,36 @@ def plot_spectrogram(time_origin_ms, data, analysis_pms, max_plot_freq_Hz):
     plt.colorbar(c, ax=ax, label='Intensity (dB)')
 
     #plt.show()
+
+def set_final_crop_pms(crop_pms, nest_pms, verbose):
+    #setting the cropping parameters
+    default_cropping=crop_pms['default_cropping']
+    
+    if default_cropping:
+        crop_pms['start_ms']    = nest_pms["recording_pms"]["start_ms"] 
+        crop_pms['stop_ms']     = nest_pms["recording_pms"]["stop_ms"] 
+        crop_pms['duration_ms'] = crop_pms["stop_ms"]-crop_pms["start_ms"]
+        crop_pms['delay_ms']    = 0.0    
+    else:
+        crop_pms['start_ms']    = crop_pms['delay_ms'] + nest_pms["recording_pms"]["start_ms"]
+        crop_pms['stop_ms']     = crop_pms['start_ms'] + crop_pms['duration_ms']
+    
+    if verbose==True:
+        print("FINAL crop_pms values", crop_pms)
+    return crop_pms
+
+#switch-case decision of spectral_window_ms based on the value of the crop_duration_ms
+def spectral_window_ms_analysis_switch(crop_duration_ms):
+    if crop_duration_ms<4000.0:
+        spectral_window_ms=crop_duration_ms/4.0
+        return spectral_window_ms
+    if crop_duration_ms <= 8000.0:
+        spectral_window_ms = 1000.0
+        return spectral_window_ms
+    if crop_duration_ms <= 16000.0:
+        spectral_window_ms = 2000.0
+        return spectral_window_ms
+    else:
+        spectral_window_ms = 4000.0
+        return spectral_window_ms
     
