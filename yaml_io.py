@@ -67,7 +67,6 @@ def read_general_config_yaml(verbose):
 
     if verbose:
         print("read_general_config_yaml: TUNED CONFIG", config)
-        print("----")     
     return config
 
 def read_neural_parameters(neural_param_file_name, verbose):
@@ -80,4 +79,37 @@ def read_neural_parameters(neural_param_file_name, verbose):
     if verbose:    
         print("read_neural_parameters loaded the following parameters:", neural_params)
     return neural_params
+
+def read_crop_and_plot_yaml(verbose):
+    print("in read_crop_and_plot_yaml: verbose mode is", verbose)
+    # Load standard crop and plot parameters from YAML file
+    general_crop_and_plot_file_name = "basic_crop_and_plot.yaml"
+    tune_crop_and_plot_file_name = "tune_crop_and_plot.yaml"
+    if verbose:
+        print("in read__crop_and_plot_yaml: opening file:",general_crop_and_plot_file_name)  
+    with open(general_crop_and_plot_file_name, 'r') as file:
+        crop_and_plot_params = yaml.safe_load(file)
+    if verbose:
+        print("in read__crop_and_plot_yaml: starting config (later tuned by this routine)", crop_and_plot_params)
+        print("----")
+        print("in read__crop_and_plot_yaml:: opening file:",tune_crop_and_plot_file_name)  
+    with open(tune_crop_and_plot_file_name, 'r') as file:
+        tune_crop_and_plot_params = yaml.safe_load(file)
     
+    # Use the recursive update function
+    recursive_update(crop_and_plot_params, tune_crop_and_plot_params)
+
+    if verbose:
+        print("in read__crop_and_plot_yaml: TUNED CONFIG", crop_and_plot_params)
+        print("----") 
+    crop_params=crop_and_plot_params['crop']
+    if verbose:
+        print("crop_params",crop_params)
+    plot_params=crop_and_plot_params['plot']
+    if verbose:
+        print("plot_params",plot_params)
+    sampling_params=crop_and_plot_params['sampling']
+    if verbose:
+        print("sampling_params",sampling_params) 
+        
+    return crop_params, plot_params, sampling_params
