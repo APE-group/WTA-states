@@ -16,7 +16,6 @@ from nest_reset_create_connect_simulate import *
 from activity_analysis import *
 
 is_verbose = False
-debug_mode = True
 
 #total sim, resolution and recording times
 times = read_sim_and_recording_times_yaml(is_verbose)
@@ -41,20 +40,22 @@ print("sim_completed", sim_completed)
 d_inh = nest.GetStatus(inh_spike_recorder, "events")[0]
 
 #before analysis, preliminary sim look 
-preliminary_sim_look(debug_mode,nest_pms, spike_recorders, inh_spike_recorder, nest_pms["recording_pms"])   
+is_verbose=True
+preliminary_sim_look(is_verbose, nest_pms, spike_recorders, inh_spike_recorder, nest_pms["recording_pms"])   
 
-verbose=False
-
+is_verbose=False
 #here we prepare all the parameters for the following analysis and print
 crop_pms, plot_pms, sampling_pms, analysis_pms =\
-    prepare_crop_plot_sampling_activityAnalysis_parameters(nest_pms, verbose)
+    prepare_crop_plot_sampling_activityAnalysis_parameters(nest_pms, is_verbose)
 
 # Assuming spike_recorders is a list of spike recorder IDs previously created in your NEST simulation
 cropped_events = crop_events_from_spike_recorders(crop_pms, spike_recorders)
 cropped_inh_events = crop_inh_events(crop_pms, inh_spike_recorder)
 
+is_verbose=False
 #launches all analysis
 #produces from both spike-like waveforms and tissue-like responses
 #PLEASE use the basic_ and tune_crop_and_plot.yaml to select plots and parameters 
 produce_rastegrams_rates_spectra_spectrograms(\
-    nest_pms, crop_pms, plot_pms, analysis_pms, cropped_events, cropped_inh_events, verbose)
+    nest_pms, crop_pms, plot_pms, analysis_pms, cropped_events, cropped_inh_events, is_verbose)
+

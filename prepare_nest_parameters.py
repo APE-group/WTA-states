@@ -22,8 +22,8 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
     exc_pms = read_neural_parameters(exc_pms_file_name, is_verbose)
     inh_pms = read_neural_parameters(inh_pms_file_name, is_verbose)
     
-    nest_pms["exc_pms"]=inh_pms
-    nest_pms["exc_pms"]=exc_pms
+    nest_pms["exc_pms"] = exc_pms
+    nest_pms["inh_pms"] = inh_pms
     exc_t_ref_ms=0.0
     
     num_exc_pop=network['num_exc_pop']
@@ -174,6 +174,7 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
     # Add contextual poisson signal configuration to nest_pms
     if 'contextual_poisson' in config:
         nest_pms['contextual_poisson'] = config['contextual_poisson']
+    nest_pms["brain_state"]= brain_state
     nest_pms["sim_pms"]=times["sim_pms"]
     nest_pms["use_single_compartment_environment"]= use_single_compartment_environment
     nest_pms["exc_neu_params"]=exc_neu_params

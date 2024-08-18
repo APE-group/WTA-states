@@ -223,20 +223,21 @@ def produce_rastegrams_rates_spectra_spectrograms(\
     #produce the rastegrams
     #PLEASE: select if the exc, inh or both are needed from yaml files
     produce_rastegrams(nest_pms, plot_pms, crop_pms, cropped_events, cropped_inh_events, verbose)
-    plt.show()
-    
-    print("FROM SPIKE-LIKE WAVEFORMS:")
-    print("--------------------------")
+    if plot_pms['intermediate_plt_show']:
+        plt.show()
+        print("FROM SPIKE-LIKE WAVEFORMS:")
+        print("--------------------------")
     #2- SPIKE-like waveforms to RATES, SPECTRUM and SPECTROGRAM 
     #includes filter to transform spike-times into spike-like waveforms
     #PLEASE: use the yaml files to select the plots and the filter definition 
     time_points, smoothed_spikes_firing_rate = high_frequency_analysis_from_spikes(\
     nest_pms, plot_pms, crop_pms, analysis_pms,\
     cropped_events, verbose)
-    plt.show()
-    print("--------------------------")    
-    print("FROM TISSUE-LIKE WAVEFORMS ")
-    print("--------------------------")
+    if plot_pms['intermediate_plt_show']:
+        plt.show()
+        print("--------------------------")    
+        print("FROM TISSUE-LIKE WAVEFORMS ")
+        print("--------------------------")
     #3- TISSUE-like to RATES, SPECTRUM and SPECTROGRAM  
     #includes a kernel to smooth from the spike-like waveforms 
     #towards tissue- and synaptic-like responses for 
