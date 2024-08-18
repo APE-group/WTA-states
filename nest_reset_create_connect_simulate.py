@@ -112,32 +112,40 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads):
                 nest.Connect(pgs, neurons[i], syn_spec={"weight": poisson_weight, "delay": 1.0, 'receptor_type': 9})
 
     # Add contextual poisson signal if configured
-    if 'contextual_poisson' in nest_pms and 'awake' in nest_pms['contextual_poisson']:
-        contextual_conf = nest_pms['contextual_poisson']['awake']
-        if all(key in contextual_conf for\
-               key in ['target_pop', 'start_time', 'stop_time', 'spreading_factor', 'basic_rate', 'poisson_weight']):
-            target_pop = contextual_conf['target_pop']
-            start_time = contextual_conf['start_time']
-            stop_time = contextual_conf['stop_time']
-            spreading_factor = contextual_conf['spreading_factor']
-            basic_rate = contextual_conf['basic_rate']
-            poisson_weight = contextual_conf['poisson_weight']
+    if 'contextual_poisson' in nest_pms and \
+            nest_pms['brain_state'] in nest_pms['contextual_poisson']: 
+        # Extract the upper-level configuration parameters
+        contextual_poisson_config = nest_pms['contextual_poisson'][nest_pms['brain_state']]
         
-            # Create Poisson generator for contextual signal
-            contextual_poisson_gen = nest.Create('poisson_generator', 1, {'rate': basic_rate})
-        
-            # Set the time of activation and deactivation for the generator
-            nest.SetStatus(contextual_poisson_gen, {'start': start_time, 'stop': stop_time}) 
+        # Ensure all required keys are present in the configuration
+        if all(key in contextual_poisson_config for key in ['events', 'spreading_factor', 'basic_rate', 'poisson_weight']):
+            events = contextual_poisson_config['events']
+            spreading_factor = contextual_poisson_config['spreading_factor']
+            basic_rate = contextual_poisson_config['basic_rate']
+            poisson_weight = contextual_poisson_config['poisson_weight']
+    
+            # Iterate through each event in the events list
+            for event in events:
+                target_pop = event['target_population']
+                start_time = event['start_time_ms']
+                stop_time = event['stop_time_ms']
+                
+                # Create a Poisson generator for the event
+                contextual_poisson_gen = nest.Create('poisson_generator', 1, {'rate': basic_rate})
+                
+                # Set the start and stop times for the generator
+                nest.SetStatus(contextual_poisson_gen, {'start': start_time, 'stop': stop_time})
+    
+                # Define the synapse specifications
+                syn_spec = {'weight': poisson_weight * spreading_factor, "delay": 1.0}
+    
+                # Connect the generator to the target population
+                if use_single_compartment_environment:             
+                    nest.Connect(contextual_poisson_gen, neurons[target_pop], syn_spec=syn_spec)
+                else:
+                    syn_spec.update({'receptor_type': 9})
+                    nest.Connect(contextual_poisson_gen, neurons[target_pop], syn_spec=syn_spec)
 
-            # Adjust connection parameters based on spreading_factor and poisson_weight
-            syn_spec = {'weight': poisson_weight * spreading_factor, "delay": 1.0,}
-
-            # Connect the generator to the target population
-            if use_single_compartment_environment:             
-                nest.Connect(contextual_poisson_gen, neurons[target_pop], syn_spec=syn_spec)
-            else:
-                syn_spec.update({'receptor_type':9})
-                nest.Connect(contextual_poisson_gen, neurons[target_pop], syn_spec=syn_spec)
 
     # DC current injection for all neurons if enabled
     use_dc_exc_injectors=nest_pms["use_dc_exc_injectors"]

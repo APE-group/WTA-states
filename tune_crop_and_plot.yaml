@@ -8,8 +8,9 @@ sampling:
     spikes_sampling_window_ms: 0.2
     low_freq_sampling_window_ms: 12.5
 plot:
+    intermediate_plt_show: True
     excitatory_rastergram: True
-    inhibitory_rastergram: True
+    inhibitory_rastergram: False
     instantaneous_firing_rate: False
     smoothed_spikes_firing_rate: True
     spectrogram_window:
