@@ -3,6 +3,9 @@ Exercises combining brain states and soft winner takes all
 
 LOG OF MAIN EVENTS (from recent to past)
 
+Release 2027-0820b config and plots can be saved in directories that can be specified using the file "directories_and_list_of_yamls.yaml".
+Use there the "overwrite_dir" file name if you want to send last runs always to the same directory.
+
 Release 2027-0820 Solution of issue #16. It is now possible to specify a list of events during the simulation. The first supported action is the saving of intra assembly synaptic matrices at times that can be defined in the basic_ and tune_sim_and_recording_times.yaml files
 
 Release 2024-0817 It Solves both issue #11 and issue #12. Now the main launches a single activity analysis function. 
