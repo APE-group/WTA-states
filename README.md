@@ -3,6 +3,8 @@ Exercises combining brain states and soft winner takes all
 
 LOG OF MAIN EVENTS (from recent to past)
 
+Release 2027-8020 Solution of issue #16. It is now possible to specify a list of events during the simulation. The first supported action is the saving of intra assembly synaptic matrices at times that can be defined in the basic_ and tune_sim_and_recording_times.yaml files
+
 Release 2024-0817 It Solves both issue #11 and issue #12. Now the main launches a single activity analysis function. 
 All parameters for the analysis and the plot of the activity can be set in the basic_ and tune_ crop_and_plot.yaml files.
 
