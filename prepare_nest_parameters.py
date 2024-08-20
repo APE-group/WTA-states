@@ -181,6 +181,7 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
     nest_pms["inh_neu_params"]=inh_neu_params
     nest_pms["exc_t_ref_ms"]=exc_t_ref_ms
     nest_pms["recording_pms"]=times["recording_pms"]
+    nest_pms["events_pms"]=times["events_pms"]
     
     #how many neurons
     nest_pms["network"]={}

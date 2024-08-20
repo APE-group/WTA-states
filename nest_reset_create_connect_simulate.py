@@ -1,7 +1,9 @@
 import nest
 from cm_neuron import create_cm_neuron
+from synaptic_io import *
 
-def nest_reset_create_connect_simulate(nest_pms, num_threads):
+
+def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
     sim_completed=False
     sim_pms=nest_pms["sim_pms"]
     nest.ResetKernel()
@@ -180,11 +182,69 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads):
                  "amplitude": dc_inh_amplitude})
         nest.Connect(dc_inh_generator, inh_neurons,\
                      syn_spec={'weight': dc_inh_weight, 'delay': dc_inh_delay_ms})
+
+    def perform_event_action(requested_action,verbose):
+        if verbose:
+            print("in perform_event_action: requested action:", requested_action) 
+        if requested_action['kind']=='store_intra_assembly_syn':
+            store_intra_assembly_syn(requested_action['kind'],requested_action['file_name'],verbose)
+        else:
+            print("in perform_event_action: requested action:",requested_action['kind'],"NOT SUPPORTED")
+            assert False
+        return
+
+    def store_intra_assembly_syn(requested_action, file_name, verbose):
+        assert(requested_action=='store_intra_assembly_syn')
+        if(verbose):
+            print("in store_intra_assembly_synapses:")
+            print("will save to file:", file_name)
+        array_of_dicts = []
+        for i in range(num_exc_pop):
+            array_of_dicts.append(\
+                {"exc_pop_index": i,\
+                "intra_pop_connections": nest.GetConnections(source=neurons[i],target=neurons[i]).get(
+                ("source", "target", "weight"), output="pandas")})
+        with open(file_name, "wb") as f:
+            pickle.dump(array_of_dicts, f, pickle.HIGHEST_PROTOCOL)
         
-
-
+        #print("in store_intra_assembly_synapses: ACTION NOT YET IMPLEMENTED")
+        return
+    
     # Run the simulation
-    nest.Simulate(sim_pms["stop_ms"])
+    verbose=True
+    if verbose:
+        print("in nest_..._simulate: just before nest.Simulate")
+        print("nest_pms['events_pms']", nest_pms['events_pms'])
+    tot_simulated_time_ms=0.0
+    for item in nest_pms['events_pms']:
+        if verbose:
+            print("ACTION",item['action'])
+        #performing the action
+        perform_event_action(item['action'],verbose)   
 
+        if verbose:       
+            print("expected NEXT SIM PERIOD ms",item['sim_period_ms']) 
+        next_sim_period_ms = item['sim_period_ms']
+        if next_sim_period_ms + tot_simulated_time_ms > sim_pms["stop_ms"]:
+            next_sim_period_ms = sim_pms["stop_ms"] - tot_simulated_time_ms
+            if verbose:
+                print("reduced last sim time ms to", next_sim_period_ms) 
+        if verbose:
+            print("launching next period of ", next_sim_period_ms, "ms of simulation")
+        #launching simulation period
+        nest.Simulate(next_sim_period_ms)
+        tot_simulated_time_ms += next_sim_period_ms
+        if verbose:
+            print("performed until now:",tot_simulated_time_ms, "TOTAL ms of simulation")
+    if tot_simulated_time_ms < sim_pms["stop_ms"]:
+        next_sim_period_ms = sim_pms["stop_ms"] - tot_simulated_time_ms
+        if verbose:
+            print("ADDING ", next_sim_period_ms, "ms sim to complete expected" ,sim_pms["stop_ms"], "TOTAL ms of simulation")
+        #possible last simulation period
+        nest.Simulate(next_sim_period_ms)
+        tot_simulated_time_ms += next_sim_period_ms
+        if verbose:
+            print("performed until now:",tot_simulated_time_ms, "TOTAL ms of simulation")
+        
     sim_completed=True
     return sim_completed, spike_recorders, inh_spike_recorder
