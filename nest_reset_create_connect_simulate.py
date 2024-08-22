@@ -188,6 +188,12 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
             print("in perform_event_action: requested action:", requested_action) 
         if requested_action['kind']=='store_intra_assembly_syn':
             store_intra_assembly_syn(requested_action['kind'],requested_action['file_name'],verbose)
+        elif requested_action['kind']=='disconnect_intra_exc_pop_syn':
+            exc_pop_to_be_disconnected = requested_action['target_exc_pop']
+            assert(exc_pop_to_be_disconnected >= 0 and exc_pop_to_be_disconnected < num_exc_pop)
+            intra_syns=nest.GetConnections(source=neurons[exc_pop_to_be_disconnected],
+                                          target=neurons[exc_pop_to_be_disconnected])
+            nest.Disconnect(intra_syns)
         else:
             print("in perform_event_action: requested action:",requested_action['kind'],"NOT SUPPORTED")
             assert False
@@ -209,42 +215,56 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
         
         #print("in store_intra_assembly_synapses: ACTION NOT YET IMPLEMENTED")
         return
-    
-    # Run the simulation
-    verbose=True
-    if verbose:
-        print("in nest_..._simulate: just before nest.Simulate")
-        print("nest_pms['events_pms']", nest_pms['events_pms'])
-    tot_simulated_time_ms=0.0
-    for item in nest_pms['events_pms']:
-        if verbose:
-            print("ACTION",item['action'])
-        #performing the action
-        perform_event_action(item['action'],verbose)   
 
-        if verbose:       
-            print("expected NEXT SIM PERIOD ms",item['sim_period_ms']) 
-        next_sim_period_ms = item['sim_period_ms']
-        if next_sim_period_ms + tot_simulated_time_ms > sim_pms["stop_ms"]:
+    def simulate(verbose):
+        # Run the simulation
+        if verbose:
+            print("in nest_..._simulate: just before nest.Simulate")
+            print("nest_pms['events_pms']", nest_pms['events_pms'])
+    
+        tot_simulated_time_ms=0.0
+        if 'events_pms' in nest_pms:
+            for item in nest_pms['events_pms']:
+                if 'action' in item:
+                    if verbose:
+                        print("ACTION",item['action'])
+                    #performing the action
+                    perform_event_action(item['action'],verbose)   
+                if 'sim_period_ms' in item:    
+                    if verbose:       
+                        print("expected NEXT SIM PERIOD ms",item['sim_period_ms']) 
+                    next_sim_period_ms = item['sim_period_ms']
+                else:
+                    next_sim_period_ms = 0.0
+                if next_sim_period_ms + tot_simulated_time_ms > sim_pms["stop_ms"]:
+                    next_sim_period_ms = sim_pms["stop_ms"] - tot_simulated_time_ms
+                    if verbose:
+                        print("reduced last sim time ms to", next_sim_period_ms) 
+                        print("launching next period of ", next_sim_period_ms, "ms of simulation")
+                #launching simulation period
+                if next_sim_period_ms > 0:
+                    nest.Simulate(next_sim_period_ms)
+                    tot_simulated_time_ms += next_sim_period_ms
+                    if verbose:
+                        print("performed until now:",tot_simulated_time_ms, "TOTAL ms of simulation")
+
+        if tot_simulated_time_ms < sim_pms["stop_ms"]:
             next_sim_period_ms = sim_pms["stop_ms"] - tot_simulated_time_ms
             if verbose:
-                print("reduced last sim time ms to", next_sim_period_ms) 
-        if verbose:
-            print("launching next period of ", next_sim_period_ms, "ms of simulation")
-        #launching simulation period
-        nest.Simulate(next_sim_period_ms)
-        tot_simulated_time_ms += next_sim_period_ms
-        if verbose:
-            print("performed until now:",tot_simulated_time_ms, "TOTAL ms of simulation")
-    if tot_simulated_time_ms < sim_pms["stop_ms"]:
-        next_sim_period_ms = sim_pms["stop_ms"] - tot_simulated_time_ms
-        if verbose:
-            print("ADDING ", next_sim_period_ms, "ms sim to complete expected" ,sim_pms["stop_ms"], "TOTAL ms of simulation")
-        #possible last simulation period
-        nest.Simulate(next_sim_period_ms)
-        tot_simulated_time_ms += next_sim_period_ms
-        if verbose:
-            print("performed until now:",tot_simulated_time_ms, "TOTAL ms of simulation")
+                print("ADDING ", next_sim_period_ms, "ms sim to complete expected" ,sim_pms["stop_ms"], "TOTAL ms of simulation")
+            #possible last simulation period
+            assert(next_sim_period_ms>0)
+            nest.Simulate(next_sim_period_ms)
+            tot_simulated_time_ms += next_sim_period_ms
+            if verbose:
+                print("performed until now:",tot_simulated_time_ms, "TOTAL ms of simulation")
+            assert(tot_simulated_time_ms==sim_pms["stop_ms"])
+
+        return 
         
+    #HERE IS THE SIMULATION
+    verbose=True
+    simulate(verbose)
     sim_completed=True
+
     return sim_completed, spike_recorders, inh_spike_recorder

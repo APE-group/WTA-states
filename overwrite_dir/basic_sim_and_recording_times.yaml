@@ -11,6 +11,10 @@ events_pms:
       kind: 'store_intra_assembly_syn'
       file_name: 'first_syn_matrix'
     sim_period_ms: 1000.0
+  - action:
+      kind: 'disconnect_intra_exc_pop_syn'
+      target_exc_pop: 2
+    sim_period_ms: 0.0
   - action: 
       kind: 'store_intra_assembly_syn'
       file_name: 'second_syn_matrix'

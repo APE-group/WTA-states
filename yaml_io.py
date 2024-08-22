@@ -123,9 +123,9 @@ def read_crop_and_plot_yaml(directories_and_list_of_yamls, verbose):
 
     return crop_params, plot_params, sampling_params
 
-def read_directories_yaml(verbose):
+def read_basic_directories_and_list_of_yamls(verbose):
     print("in read_directories_yaml: verbose mode is", verbose)
-    directories_and_yaml_files_name ='directories_and_list_of_yamls.yaml'
+    directories_and_yaml_files_name ='basic_directories_and_list_of_yamls.yaml'
     with open(directories_and_yaml_files_name, 'r') as file:
         directories_and_list_of_yamls = yaml.safe_load(file)
     return directories_and_list_of_yamls
