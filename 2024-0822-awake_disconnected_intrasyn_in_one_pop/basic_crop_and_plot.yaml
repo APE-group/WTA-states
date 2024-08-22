@@ -1,0 +1,56 @@
+crop:
+    #If default_cropping is True, plots are performed over the full recording period
+    default_cropping: True
+    #the following applies only if default_cropping is False
+    delay_ms: 0.0
+    duration_ms: 100.0
+sampling:
+    spikes_sampling_window_ms: 0.2
+    low_freq_sampling_window_ms: 12.5
+plot:
+    save_plots_in_output_dir: True
+    intermediate_plt_show: True
+    excitatory_rastergram: True
+    inhibitory_rastergram: True
+    instantaneous_firing_rate: False
+    smoothed_spikes_firing_rate: True
+    spectrogram_window:
+        #if default_window is True, this is computed by a dedicated routine
+        default_window: True
+        #by setting default window to False, the used can decide a custom_window
+        custom_ms: 1000.0
+    spike_activation_kernel:
+        #transforms an istantaneous spiking time 
+        #into a spike like waveform
+        #typical duration_ms of the gaussian kernel 4.0 ms
+        #typical std_dev_ms of the gaussian kernel 0.5 ms
+        duration_ms: 4.0 
+        std_dev_ms: 0.5
+        plot: True
+    high_freq_spectrum:
+        max_plot_freq_Hz: 250.0
+        #next in frequency samples
+        smoothing_lenght: 20
+        plot: True
+    high_freq_spectrogram:
+        plot: True
+        max_plot_freq_Hz: 100
+    tissue_response_kernel:
+        #smoothing the spike gaussians 
+        #with tissue- and synaptic-like times for 
+        #ECG/LFP/ECoG like analysis
+        #gaussiam kernel
+        #typical values: duration_ms=100ms, std_dev_ms=12.0
+        duration_ms: 100.0
+        std_dev_ms: 12.0
+        plot: True
+    tissue_response_rate: True
+    tissue_response_spectrum:
+        max_plot_freq_Hz: 40.0
+        #next in frequency samples
+        smoothing_lenght: 4
+        plot: True
+    tissue_response_spectrogram:
+        plot: True
+        max_plot_freq_Hz: 40
+        
