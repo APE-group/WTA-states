@@ -3,6 +3,8 @@ Exercises combining brain states and soft winner takes all
 
 LOG OF MAIN EVENTS (from recent to past)
 
+Release 2027-0822 added capability of disconnecting intra assemblies connections at programmable time, and what target exc pop to be disconnected
+
 Release 2027-0820b config and plots can be saved in directories that can be specified using the file "directories_and_list_of_yamls.yaml".
 Use there the "overwrite_dir" file name if you want to send last runs always to the same directory.
 
