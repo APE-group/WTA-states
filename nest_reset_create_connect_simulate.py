@@ -20,13 +20,17 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
 
     if use_single_compartment_environment:
         # Create excitatory neuron populations
+        params=exc_neu_params['equation_params']
+        params["tau_minus"]={}
+        params["tau_minus"]=20.0
+        #nest.Create("iaf_psc_alpha", params={"tau_minus": 20.0})
         neurons = [
             nest.Create(
                 "aeif_cond_alpha",
                 num_exc_neu_per_pop,
-                params=exc_neu_params['equation_params'],
+                params=params
             )
-            for _ in range(num_exc_pop)
+            for _ in range(num_exc_pop)       
         ]
     else:
         # Create excitatory Ca-AdEx neuron populations
@@ -187,20 +191,50 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
         if verbose:
             print("in perform_event_action: requested action:", requested_action) 
         if requested_action['kind']=='store_intra_assembly_syn':
-            store_intra_assembly_syn(requested_action['kind'],requested_action['file_name'],verbose)
+            #STORE SYN MATRIX
+            store_intra_assembly_syn(requested_action['syn_file_name'],verbose)
         elif requested_action['kind']=='disconnect_intra_exc_pop_syn':
+            #DISCONNECT
+            if 'syn_file_name_before' in requested_action:
+                store_intra_assembly_syn(requested_action['syn_file_name_before'],verbose)
             exc_pop_to_be_disconnected = requested_action['target_exc_pop']
             assert(exc_pop_to_be_disconnected >= 0 and exc_pop_to_be_disconnected < num_exc_pop)
-            intra_syns=nest.GetConnections(source=neurons[exc_pop_to_be_disconnected],
-                                          target=neurons[exc_pop_to_be_disconnected])
-            nest.Disconnect(intra_syns)
+            existing_conns= nest.GetConnections(neurons[exc_pop_to_be_disconnected],
+                                               neurons[exc_pop_to_be_disconnected])   
+            nest.Disconnect(existing_conns)
+            #reconnect with zero values (to be improved)
+            conn_spec_dict = {"rule": "all_to_all", "allow_autapses": False}
+            syn_spec_dict = {"weight": 0.0, "delay": exc_to_exc_delay_ms}
+            nest.Connect(neurons[exc_pop_to_be_disconnected],
+                         neurons[exc_pop_to_be_disconnected], 
+                         conn_spec_dict,
+                         syn_spec_dict) 
+            if 'syn_file_name_after' in requested_action:
+                store_intra_assembly_syn(requested_action['syn_file_name_after'],verbose)
+        elif requested_action['kind']=='plastic_intra_exc_pop_syn_ON':
+            #make PLASTIC
+            if 'syn_file_name_before' in requested_action:
+                store_intra_assembly_syn(requested_action['syn_file_name_before'],verbose)
+            exc_pop_to_be_made_plastic = requested_action['target_exc_pop'] 
+            assert(exc_pop_to_be_made_plastic >= 0 and exc_pop_to_be_made_plastic < num_exc_pop)
+            Wmax = recurrent_weight * requested_action['W_max_factor']
+            conn_spec_dict = {"rule": "all_to_all", "allow_autapses": False}
+            syn_spec_dict = {'synapse_model': 'stdp_synapse', "Wmax": Wmax,
+                             "tau_plus": 20, "lambda":0.1, "alpha":1.2, 
+                             "mu_plus": 1.0, "mu_minus": 1.0,
+                             "weight": 0.01, "delay": exc_to_exc_delay_ms,}
+            nest.Connect(neurons[exc_pop_to_be_made_plastic], neurons[exc_pop_to_be_made_plastic],
+                         conn_spec_dict, syn_spec_dict)
+            print("Wmax =", Wmax, "exc_pop_to_be_made_plastic",  exc_pop_to_be_made_plastic)
+            if 'syn_file_name_after' in requested_action:
+                store_intra_assembly_syn(requested_action['syn_file_name_after'],verbose)            
         else:
+            #UNRECOGNIZED
             print("in perform_event_action: requested action:",requested_action['kind'],"NOT SUPPORTED")
             assert False
         return
 
-    def store_intra_assembly_syn(requested_action, file_name, verbose):
-        assert(requested_action=='store_intra_assembly_syn')
+    def store_intra_assembly_syn(file_name, verbose):
         if(verbose):
             print("in store_intra_assembly_synapses:")
             print("will save to file:", file_name)

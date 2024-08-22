@@ -1,6 +1,6 @@
 #state can be either "awake" or "NREM"
-brain_state: "NREM"
-#brain_state: "awake"
+#brain_state: "NREM"
+brain_state: "awake"
 use_single_compartment_environment: True
 #exc_neu_params_filename: "Ca-AdEx_neural_params.yaml"
 inh_neu_params_filename: "standard_AdEx_inh_neural_params.yaml"
@@ -43,9 +43,9 @@ contextual_poisson:
     - start_time_ms: 1000.0
       stop_time_ms: 1300.0
       target_population: 0
-    - start_time_ms: 8000.0
-      stop_time_ms: 8700.0
-      target_population: 1
+    - start_time_ms: 5000.0
+      stop_time_ms: 6950.0
+      target_population: 2
     - start_time_ms: 35000.0
       stop_time_ms: 35200.0
       target_population: 1

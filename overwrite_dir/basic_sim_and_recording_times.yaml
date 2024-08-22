@@ -9,13 +9,22 @@ recording_pms:
 events_pms:
   - action: 
       kind: 'store_intra_assembly_syn'
-      file_name: 'first_syn_matrix'
-    sim_period_ms: 1000.0
+      syn_file_name: 'syn_matrix-initial'
+    sim_period_ms: 3000.0
   - action:
       kind: 'disconnect_intra_exc_pop_syn'
       target_exc_pop: 2
-    sim_period_ms: 0.0
-  - action: 
-      kind: 'store_intra_assembly_syn'
-      file_name: 'second_syn_matrix'
+      syn_file_name_after: 'syn_matrix-after_first_disconnection'
     sim_period_ms: 2000.0
+  - action:
+      kind: 'plastic_intra_exc_pop_syn_ON'
+      target_exc_pop: 2
+      W_max_factor: 2.0
+      syn_file_name_after: 'syn_matrix-after_plasticity_switch_ON'
+    sim_period_ms: 2000.0
+  - action:
+      kind: 'disconnect_intra_exc_pop_syn'
+      target_exc_pop: 2
+      syn_file_name_before: 'syn_matrix-end_of_plasticity'
+      syn_file_name_after: 'syn_matrix-after_second_disconnection'
+    sim_period_ms: 1000.0

@@ -1,6 +1,6 @@
 #if relative_output_dir == 'overwrite_dir' files are copied 
 #there and plots are stored there without checking for overwriting
-relative_output_dir: '2024-0822-NREM_disconnected_intrasyn_in_one_pop'
+relative_output_dir: 'overwrite_dir'
 
 #otherwise select an interesting dir name like:
 #relative_output_dir: '2024-0820-static_syn_awake'

@@ -25,16 +25,16 @@ contextual_poisson:
     spreading_factor: 4.0
     events:
     - start_time_ms: 6000.0
-      stop_time_ms: 7000.0
+      stop_time_ms: 6800.0
       target_population: 0
-    - start_time_ms: 8000.0
-      stop_time_ms: 9000.0
+    - start_time_ms: 7300.0
+      stop_time_ms: 8400.0
       target_population: 1
     - start_time_ms: 10000.0
-      stop_time_ms: 11000.0
+      stop_time_ms: 10500.0
       target_population: 1
-    - start_time_ms: 12000.0
-      stop_time_ms: 13000.0
+    - start_time_ms: 15000.0
+      stop_time_ms: 15400.0
       target_population: 0
   NREM:
     basic_rate: 1500.0
