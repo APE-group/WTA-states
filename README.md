@@ -1,7 +1,10 @@
 # WTA-states
 Exercises combining brain states and soft winner takes all
 
-LOG OF MAIN EVENTS (from recent to past)
+# Acknowledgemt of fundings
+This work has been cofunded by the European Next Generation EU grants Italian MUR CUP I53C22001400006 (FAIR PE0000013 PNRR Project).
+
+# LOG OF MAIN EVENTS (from recent to past)
 
 Release 2027-0822 solving issue #19 switch on plasticity and #23: Added capability of disconnecting intra assemblies connections at programmable time, and what target exc pop to be disconnected
 
