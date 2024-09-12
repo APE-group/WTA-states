@@ -39,16 +39,16 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
     if is_verbose:
         print("use_exc_recurrency:",use_recurrency)
         print("weights:",weights)
-    
-    if use_recurrency:
-        if brain_state == "awake":
-            weights=weights['awake']
-        else:
-            weights=weights['NREM'] 
-        recurrent_weight = weights['recurrent_weight'] * cf if use_recurrency else 0.0
-        inh_to_exc_weight = weights["inh_to_exc_weight"] * cf
-        exc_to_inh_weight = weights["exc_to_inh_weight"]
-        inh_to_inh_weight = weights["inh_to_inh_weight"]
+
+    if brain_state == "awake":
+        weights=weights['awake']
+    else:
+        weights=weights['NREM'] 
+
+    recurrent_weight = weights['recurrent_weight'] * cf if use_recurrency else 0.0
+    inh_to_exc_weight = weights["inh_to_exc_weight"] * cf
+    exc_to_inh_weight = weights["exc_to_inh_weight"]
+    inh_to_inh_weight = weights["inh_to_inh_weight"]
     
     if is_verbose:
         print("recurrent_weight:", recurrent_weight)
