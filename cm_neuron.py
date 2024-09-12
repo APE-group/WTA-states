@@ -104,13 +104,17 @@ def create_cm_neuron(n = 1, params = {}):
         {"comp_idx": 0, "receptor_type": "AMPA_NMDA"},
         {"comp_idx": 0, "receptor_type": "AMPA", "params": {"tau_r_AMPA": .173, "tau_d_AMPA": .227, "e_AMPA": 0.}},
         {"comp_idx": 0, "receptor_type": "AMPA", "params": {"tau_r_AMPA": 1.73, "tau_d_AMPA": 2.27, "e_AMPA": -85.}},
+        {"comp_idx": 1, "receptor_type": "AMPA", "params": {"tau_r_AMPA": .173, "tau_d_AMPA": .227, "e_AMPA": 0.}},
+        {"comp_idx": 1, "receptor_type": "AMPA", "params": {"tau_r_AMPA": 1.73, "tau_d_AMPA": 2.27, "e_AMPA": -85.}},
+        {"comp_idx": 1, "receptor_type": "NMDA"},
+        {"comp_idx": 1, "receptor_type": "AMPA_NMDA"},
     ]
     
     cm.receptors = receptors
 
     # receptors get assigned an index which corresponds to the order in which they
     # are added. For clearer bookkeeping, we explicitly define these indices here.
-    GABA_soma, AMPA_soma, GABA_dist, AMPA_dist, REFRACT_soma, ADAPT_soma, BETA_dist, NMDA, AMPA_NMDA, ALPHAexc_soma, ALPHAinh_soma = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+    GABA_soma, AMPA_soma, GABA_dist, AMPA_dist, REFRACT_soma, ADAPT_soma, BETA_dist, NMDA, AMPA_NMDA, ALPHAexc_soma, ALPHAinh_soma, ALPHAexc_dist, ALPHAinh_dist = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
 
     # connect soma to soma to generate refractoriness
     syn_dict_REFRACT = {
