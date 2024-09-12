@@ -73,20 +73,22 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
     exc_to_inh_weight = nest_pms["network"]["weights"]["exc_to_inh_weight"] 
     inh_to_inh_weight = nest_pms["network"]["weights"]["inh_to_inh_weight"]
     
-    if use_recurrency:
-        exc_to_exc_delay_ms = min_syn_delay_ms + exc_t_ref_ms + 1.0
-        inh_to_inh_delay_ms = min_syn_delay_ms + exc_t_ref_ms + 1.0
-        conn_spec_dict = {"rule": "all_to_all", "allow_autapses": False}
-        if(use_single_compartment_environment):
-            for i in range(num_exc_pop):
-                nest.Connect(neurons[i], neurons[i], conn_spec_dict,\
-                    syn_spec={"weight": recurrent_weight, "delay": exc_to_exc_delay_ms})
-        else:
-            for i in range(num_exc_pop):
-                nest.Connect(neurons[i], neurons[i], conn_spec_dict,\
-                    syn_spec={"weight": recurrent_weight, "delay": exc_to_exc_delay_ms, 'receptor_type': 9})
-        nest.Connect(inh_neurons, inh_neurons, conn_spec_dict,\
-                    syn_spec={"weight": inh_to_inh_weight, "delay": inh_to_inh_delay_ms})
+
+    exc_to_exc_delay_ms = min_syn_delay_ms + exc_t_ref_ms + 1.0
+    inh_to_inh_delay_ms = min_syn_delay_ms + exc_t_ref_ms + 1.0
+    conn_spec_dict = {"rule": "all_to_all", "allow_autapses": False}
+    
+    if(use_single_compartment_environment):
+        for i in range(num_exc_pop):
+            nest.Connect(neurons[i], neurons[i], conn_spec_dict,\
+                syn_spec={"weight": recurrent_weight, "delay": exc_to_exc_delay_ms})
+    else:
+        for i in range(num_exc_pop):
+            nest.Connect(neurons[i], neurons[i], conn_spec_dict,\
+                syn_spec={"weight": recurrent_weight, "delay": exc_to_exc_delay_ms, 'receptor_type': 9})
+            
+    nest.Connect(inh_neurons, inh_neurons, conn_spec_dict,\
+                syn_spec={"weight": inh_to_inh_weight, "delay": inh_to_inh_delay_ms})
     
     # Connect inhibitory neurons to all excitatory neurons and vice versa
     inh_to_exc_delay_ms = min_syn_delay_ms + exc_t_ref_ms + 0.55
