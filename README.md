@@ -5,14 +5,16 @@ Exercises combining brain states and soft winner takes all
 This work has been cofunded by the European Next Generation EU grants Italian MUR CUP I53C22001400006 (FAIR PE0000013 PNRR Project).
 
 # LOG OF MAIN EVENTS (from recent to past)
-Release 2027-0912 solving issue #26 use recurrency false
+Release 2024-1002 solving issue #37  "Several issues related to Ca-AdEx calibration and plasticity management": addition of adaptation conductance, list of receptor names, learning rate settings, naming kinds of synapses and solving issue create dictionary book keeping the present kind of intra pop synapses #34
 
-Release 2027-0822 solving issue #19 switch on plasticity and #23: Added capability of disconnecting intra assemblies connections at programmable time, and what target exc pop to be disconnected
+Release 2024-0912 solving issue #26 use recurrency false
 
-Release 2027-0820b config and plots can be saved in directories that can be specified using the file "directories_and_list_of_yamls.yaml".
+Release 2024-0822 solving issue #19 switch on plasticity and #23: Added capability of disconnecting intra assemblies connections at programmable time, and what target exc pop to be disconnected
+
+Release 2024-0820b config and plots can be saved in directories that can be specified using the file "directories_and_list_of_yamls.yaml".
 Use there the "overwrite_dir" file name if you want to send last runs always to the same directory.
 
-Release 2027-0820 Solution of issue #16. It is now possible to specify a list of events during the simulation. The first supported action is the saving of intra assembly synaptic matrices at times that can be defined in the basic_ and tune_sim_and_recording_times.yaml files
+Release 2024-0820 Solution of issue #16. It is now possible to specify a list of events during the simulation. The first supported action is the saving of intra assembly synaptic matrices at times that can be defined in the basic_ and tune_sim_and_recording_times.yaml files
 
 Release 2024-0817 It Solves both issue #11 and issue #12. Now the main launches a single activity analysis function. 
 All parameters for the analysis and the plot of the activity can be set in the basic_ and tune_ crop_and_plot.yaml files.
