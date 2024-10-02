@@ -12,7 +12,10 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
     exc_pms_file_name = config['exc_neu_params_filename']
     inh_pms_file_name = config['inh_neu_params_filename']
     network = config['network']
-    cf = config['cf']
+    if use_single_compartment_environment:
+        cf = 1
+    else:
+        cf = config['cf']
     weights = config['weights']
     poisson = config['poisson']
     dc_exc = config['dc_exc']
