@@ -61,6 +61,7 @@ def init_Ca_AdEx(default_params):
                     'a': default_params['a'],
                     'b': default_params['b'],
                     'e_w': default_params['e_L_s'],
+                    'g_w': default_params['g_w'],
                     'w_BAP': default_params['w_BAP']
                     }
         
@@ -86,6 +87,7 @@ def create_cm_neuron(n = 1, params = {}):
     a = other_params['a']
     b = other_params['b']
     e_w = other_params['e_w']
+    g_w = other_params['g_w']
 
     # spike threshold
     nest.SetStatus(cm, {'V_th': V_th})   # Spike threshold (mV)
@@ -98,7 +100,7 @@ def create_cm_neuron(n = 1, params = {}):
         {"comp_idx": 1, "receptor_type": "GABA", "params": {"tau_r_GABA": .2, "tau_d_GABA": 2., "e_GABA": -85.}},
         {"comp_idx": 1, "receptor_type": "AMPA", "params": {"tau_r_AMPA": .2, "tau_d_AMPA": 3., "e_AMPA": 0.}},
         {"comp_idx": 0, "receptor_type": "REFRACT", "params": {"t_ref": t_ref, "g_refract": 100000., "V_reset": V_reset}},
-        {"comp_idx": 0, "receptor_type": "ADAPT", "params": {"tau_w": tau_w, "a": a, "b": b, "e_w": e_w}},
+        {"comp_idx": 0, "receptor_type": "ADAPT", "params": {"tau_w": tau_w, "a": a, "b": b, "e_w": e_w, "g_w": g_w}},
         {"comp_idx": 1, "receptor_type": "BETA", "params": {"tau_r_BETA": 2., "tau_d_BETA": 5.}},
         {"comp_idx": 0, "receptor_type": "NMDA"},
         {"comp_idx": 0, "receptor_type": "AMPA_NMDA"},
@@ -114,7 +116,7 @@ def create_cm_neuron(n = 1, params = {}):
 
     # receptors get assigned an index which corresponds to the order in which they
     # are added. For clearer bookkeeping, we explicitly define these indices here.
-    GABA_soma, AMPA_soma, GABA_dist, AMPA_dist, REFRACT_soma, ADAPT_soma, BETA_dist, NMDA, AMPA_NMDA, ALPHAexc_soma, ALPHAinh_soma, ALPHAexc_dist, ALPHAinh_dist = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
+    GABA_soma, AMPA_soma, GABA_dist, AMPA_dist, REFRACT_soma, ADAPT_soma, BETA_dist, NMDA_soma, AMPA_NMDA_soma, ALPHAexc_soma, ALPHAinh_soma, ALPHAexc_dist, ALPHAinh_dist, NMDA_dist, AMPA_NMDA_dist = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
 
     # connect soma to soma to generate refractoriness
     syn_dict_REFRACT = {
