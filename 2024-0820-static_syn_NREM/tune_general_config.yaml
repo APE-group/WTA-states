@@ -10,6 +10,7 @@ exc_neu_params_filename: "MC-g0_like-exc_neural_params.yaml"
 network:
   #use_exc_recurrency: true
   num_exc_pop: 4  # Number of excitatory populations 
+  inter_pop_conn: False
   #num_exc_neu_per_pop: 20  # Number of excitatory AdEx neurons per pop
   #use_poisson_generators: true
   #num_poisson_generators: 20
