@@ -98,31 +98,42 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
     inh_to_exc_weight = nest_pms["network"]["weights"]["inh_to_exc_weight"]
     exc_to_inh_weight = nest_pms["network"]["weights"]["exc_to_inh_weight"] 
     inh_to_inh_weight = nest_pms["network"]["weights"]["inh_to_inh_weight"]
-    
 
+    
     exc_to_exc_delay_ms = min_syn_delay_ms + exc_t_ref_ms + 1.0
     inh_to_inh_delay_ms = min_syn_delay_ms + exc_t_ref_ms + 1.0
     assert(conn_rule == 'pairwise_bernoulli')
     conn_spec_dict_exc = {"rule": conn_rule, "p": p_conn_exc, "allow_autapses": False}
     conn_spec_dict_inh = {"rule": conn_rule, "p": p_conn_inh, "allow_autapses": False}
 
-      
-    # 2024-1002 - Solving issue 34
+    #intra assembly connections: initial set-up
     present_intra_exc = {}
     for i in range(num_exc_pop):
         present_intra_exc[i] = {'syn_type': False}
 
     if(use_single_compartment_environment):
-        for i in range(num_exc_pop):
-            nest.Connect(neurons[i], neurons[i], conn_spec_dict_exc,\
-                syn_spec={"weight": recurrent_weight, "delay": exc_to_exc_delay_ms})
-            present_intra_exc[i] = {'syn_type': 'static_synapse'}
+        syn_spec={"weight": recurrent_weight, "delay": exc_to_exc_delay_ms}
     else:
+        syn_spec={"weight": recurrent_weight, "delay": exc_to_exc_delay_ms, 'receptor_type': ALPHAexc_soma}
+        
+    for i in range(num_exc_pop):
+        nest.Connect(neurons[i], neurons[i], conn_spec_dict_exc,\
+                syn_spec={"weight": recurrent_weight, "delay": exc_to_exc_delay_ms})
+        present_intra_exc[i] = {'syn_type': 'static_synapse'} 
+
+    #inter assemblies connections: initial set-up
+    if nest_pms["network"]["inter_pop_conn"] == True:  
+        inter_pop_weight = nest_pms["network"]["weights"]["inter_pop_weight"]
+        present_inter_pop = {}
+        present_inter_pop['syn_type'] = False
+        syn_spec={"weight": inter_pop_weight, "delay": exc_to_exc_delay_ms}
         for i in range(num_exc_pop):
-            nest.Connect(neurons[i], neurons[i], conn_spec_dict_exc,\
-                syn_spec={"weight": recurrent_weight, "delay": exc_to_exc_delay_ms, 'receptor_type': ALPHAexc_soma})
-            present_intra_exc[i] = {'syn_type': 'static_synapse'}
-            
+            for j in range(num_exc_pop):
+                if i != j:
+                    nest.Connect(neurons[i], neurons[j], conn_spec_dict_exc,syn_spec)
+        present_inter_pop['syn_type'] = 'static_synapse'
+
+    #inh to inh connections: initial setup
     nest.Connect(inh_neurons, inh_neurons, conn_spec_dict_inh,\
                 syn_spec={"weight": inh_to_inh_weight, "delay": inh_to_inh_delay_ms})
     

@@ -38,7 +38,9 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
     if 'p_conn_exc' not in network:
         network['p_conn_exc'] = 1.0
     if 'p_conn_inh' not in network:
-        network['p_conn_exc'] = 1.0  
+        network['p_conn_exc'] = 1.0
+    if 'inter_pop_conn' not in network:
+        network['inter_pop_conn'] = False
         
     #setting a minimum sinaptic delay if exc_t_ref_ms<=2.0
     min_syn_delay_ms = 3.0 if exc_t_ref_ms else 0.0
@@ -58,12 +60,16 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
     inh_to_exc_weight = weights["inh_to_exc_weight"] * cf
     exc_to_inh_weight = weights["exc_to_inh_weight"]
     inh_to_inh_weight = weights["inh_to_inh_weight"]
+    if network['inter_pop_conn'] == True:
+        inter_pop_weight =  weights["inter_pop_weight"] * cf
     
     if is_verbose:
         print("recurrent_weight:", recurrent_weight)
         print("inh_to_exc_weight", inh_to_exc_weight)
         print("exc_to_inh_weight", exc_to_inh_weight)
         print("inh_to_inh_weight", inh_to_inh_weight)
+        if network['inter_pop_conn'] == True:
+            print("inter_pop_weight", inter_pop_weight)
     
     use_poisson_generators = network["use_poisson_generators"]
     if use_poisson_generators:
@@ -202,6 +208,7 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
     nest_pms["network"]["conn_rule"] = network['conn_rule']
     nest_pms["network"]["p_conn_exc"] = network['p_conn_exc']
     nest_pms["network"]["p_conn_inh"] = network['p_conn_inh']
+    nest_pms["network"]["inter_pop_conn"] = network['inter_pop_conn']
     
     #synaptic weights
     nest_pms["network"]["use_exc_recurrency"]=use_recurrency
@@ -210,6 +217,8 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
     nest_pms["network"]["weights"]["inh_to_exc_weight"] = inh_to_exc_weight
     nest_pms["network"]["weights"]["exc_to_inh_weight"] = exc_to_inh_weight
     nest_pms["network"]["weights"]["inh_to_inh_weight"] = inh_to_inh_weight
+    if network['inter_pop_conn'] == True:
+        nest_pms["network"]["weights"]["inter_pop_weight"] = inter_pop_weight
     nest_pms["network"]["min_syn_delay_ms"]=min_syn_delay_ms
     #poisson generators
     nest_pms["network"]["use_poisson_generators"]=use_poisson_generators

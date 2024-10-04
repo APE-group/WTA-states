@@ -16,6 +16,7 @@ network:
   conn_rule: "pairwise_bernoulli"
   p_conn_exc: 1.0
   p_conn_inh: 1.0
+  inter_pop_conn: False
   num_poisson_generators: 20
   use_dc_exc_injectors: false
   use_dc_inh_injector: true
