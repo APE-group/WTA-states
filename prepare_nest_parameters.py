@@ -41,6 +41,7 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
         network['p_conn_exc'] = 1.0
     if 'inter_pop_conn' not in network:
         network['inter_pop_conn'] = False
+
         
     #setting a minimum sinaptic delay if exc_t_ref_ms<=2.0
     min_syn_delay_ms = 3.0 if exc_t_ref_ms else 0.0
@@ -70,6 +71,18 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
         print("inh_to_inh_weight", inh_to_inh_weight)
         if network['inter_pop_conn'] == True:
             print("inter_pop_weight", inter_pop_weight)
+
+    if 'default_plasticity' not in network:
+        network['default_plasticity']={}
+        network['default_plasticity']['synapse_model'] = 'stdp_synapse'
+        network['default_plasticity']['tau_plus'] = 20   
+        network['default_plasticity']['lambda'] = 0.1   
+        network['default_plasticity']['alpha'] = 1.2
+        network['default_plasticity']['mu_plus'] = 1.0   
+        network['default_plasticity']['mu_minus'] = 1.0  
+        network['default_plasticity']['weight'] = 0.01      
+        network['default_plasticity']['Wmax'] = recurrent_weight  
+        network['default_plasticity']['delay'] = 'from-exc_to_exc_delay_ms'  
     
     use_poisson_generators = network["use_poisson_generators"]
     if use_poisson_generators:
@@ -186,6 +199,7 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
     if is_verbose:
         print ("inh neu params AFTER brain-state specific tuning:", inh_neu_params)
 
+
     # Add contextual poisson signal configuration to nest_pms
     if 'contextual_poisson' in config:
         nest_pms['contextual_poisson'] = config['contextual_poisson']
@@ -220,6 +234,10 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
     if network['inter_pop_conn'] == True:
         nest_pms["network"]["weights"]["inter_pop_weight"] = inter_pop_weight
     nest_pms["network"]["min_syn_delay_ms"]=min_syn_delay_ms
+
+    #plasticity default parameter (if switched on)
+    nest_pms["network"]["default_plasticity"] = network['default_plasticity']
+    
     #poisson generators
     nest_pms["network"]["use_poisson_generators"]=use_poisson_generators
     if(use_poisson_generators):
@@ -229,6 +247,7 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
         nest_pms["poisson"]["poisson_rate"]=poisson_rate
         nest_pms["poisson"]["poisson_weight"]=poisson_weight
         nest_pms["poisson"]["poisson_delta"]=poisson_delta
+    
     
     #DC exc injectors
     nest_pms["use_dc_exc_injectors"] = use_dc_exc_injectors
