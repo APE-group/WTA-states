@@ -22,6 +22,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
     conn_rule = nest_pms["network"]["conn_rule"]
     p_conn_exc = nest_pms["network"]["p_conn_exc"]
     p_conn_inh = nest_pms["network"]["p_conn_exc"]
+    default_plasticity = nest_pms["network"]["default_plasticity"]
 
     use_single_compartment_environment=nest_pms["use_single_compartment_environment"]
     print("IN nest_reset_create_connect_simulate: use_single_compartment_environment =", use_single_compartment_environment)
@@ -272,15 +273,20 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
             assert(exc_pop_to_be_made_plastic >= 0 and exc_pop_to_be_made_plastic < num_exc_pop)
             Wmax = recurrent_weight * requested_action['W_max_factor']
             conn_spec_dict = conn_spec_dict_exc
-            syn_spec_dict = {'synapse_model': 'stdp_synapse', "Wmax": Wmax,
-                             "tau_plus": 20, "lambda":0.1, "alpha":1.2, 
-                             "mu_plus": 1.0, "mu_minus": 1.0,
-                             "weight": 0.01, "delay": exc_to_exc_delay_ms,}
+            syn_spec_dict = {"synapse_model": default_plasticity['synapse_model'], 
+                             "Wmax": Wmax,
+                             "tau_plus": default_plasticity['tau_plus'], 
+                             "lambda": default_plasticity['lambda'], 
+                             "alpha": default_plasticity['alpha'], 
+                             "mu_plus": default_plasticity['mu_plus'], 
+                             "mu_minus": default_plasticity['mu_minus'],
+                             "weight": default_plasticity['mu_minus'], 
+                             "delay": exc_to_exc_delay_ms}
             if use_single_compartment_environment==False:
                 syn_spec_dict.update({'receptor_type': ALPHAexc_soma})
             nest.Connect(neurons[exc_pop_to_be_made_plastic], neurons[exc_pop_to_be_made_plastic],
                          conn_spec_dict, syn_spec_dict)
-            present_intra_exc[exc_pop_to_be_made_plastic] = {'syn_type': 'stdp_synapse'}
+            present_intra_exc[exc_pop_to_be_made_plastic] = {'syn_type': default_plasticity['synapse_model']}
 
             print("Wmax =", Wmax, "exc_pop_to_be_made_plastic",  exc_pop_to_be_made_plastic)
             if 'syn_file_name_after' in requested_action:
@@ -289,8 +295,8 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
             # Set learning rate
             if 'syn_file_name_before' in requested_action:
                 store_intra_assembly_syn(requested_action['syn_file_name_before'],verbose)
-            learning_rate = 0.1
-            alpha = 1.0
+            learning_rate = default_plasticity['lambda']
+            alpha = default_plasticity['alpha']
             if 'lambda' in requested_action:
                 learning_rate = requested_action['lambda']
             if 'alpha' in requested_action:
