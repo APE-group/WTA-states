@@ -13,6 +13,9 @@ inh_neu_params_filename: standard_AdEx_inh_neural_params.yaml
 network:
   num_exc_neu_per_pop: 20
   num_exc_pop: 4
+  conn_rule: "pairwise_bernoulli"
+  p_conn_exc: 1.0
+  p_conn_inh: 1.0
   num_poisson_generators: 20
   use_dc_exc_injectors: false
   use_dc_inh_injector: true
