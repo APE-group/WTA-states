@@ -6,7 +6,8 @@ This work has been cofunded by the European Next Generation EU grants Italian MU
 
 # LOG OF MAIN EVENTS (from recent to past)
 
-2024-1004 solved two issues: 
+2024-1004 solved three issues: 
+- #43 specify plasticity default parameters in config file
 - #39 Add first approximation of background recurrency (can set inter_assemblies connectivity to existing (True) or non existing (False))
 and attibute initial values for the weights in ...general_config.yaml files
 - #40 introduce flexible sparsity in synaptic matrices, added pairwise_bernolli connectivity, with programmable p_conn_exc and p_conn_inh values (defaulting to 1.0, i.e. all_to_all)
