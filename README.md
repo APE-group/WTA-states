@@ -5,7 +5,11 @@ Exercises combining brain states and soft winner takes all
 This work has been cofunded by the European Next Generation EU grants Italian MUR CUP I53C22001400006 (FAIR PE0000013 PNRR Project).
 
 # LOG OF MAIN EVENTS (from recent to past)
-2024-1004 solved issue #40 introduce flexible sparsity in synaptic matrices, added pairwise_bernolli connectivity, with programmable p_conn_exc and p_conn_inh values (defaulting to 1.0, i.e. all_to_all)
+
+2024-1004 solved two issues: 
+- #39 Add first approximation of background recurrency (can set inter_assemblies connectivity to existing (True) or non existing (False))
+and attibute initial values for the weights in ...general_config.yaml files
+- #40 introduce flexible sparsity in synaptic matrices, added pairwise_bernolli connectivity, with programmable p_conn_exc and p_conn_inh values (defaulting to 1.0, i.e. all_to_all)
 
 Release 2024-1002 solving issue #37  "Several issues related to Ca-AdEx calibration and plasticity management": addition of adaptation conductance, list of receptor names, learning rate settings, naming kinds of synapses and solving issue create dictionary book keeping the present kind of intra pop synapses #34
 
