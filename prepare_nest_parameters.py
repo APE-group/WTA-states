@@ -29,14 +29,20 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
     nest_pms["inh_pms"] = inh_pms
     exc_t_ref_ms=0.0
     
-    num_exc_pop=network['num_exc_pop']
-    num_exc_neu_per_pop=network['num_exc_neu_per_pop']
+
     # Calculate number of inhibitory neurons based on excitatory populations and neurons per pop
     network['num_inh_neu'] = int(network['num_exc_pop'] * network['num_exc_neu_per_pop'] / 4)
     num_inh_neu = network['num_inh_neu']
-    
+    if 'conn_rule' not in network:
+        network['conn_rule'] = 'pairwise_bernoulli'     
+    if 'p_conn_exc' not in network:
+        network['p_conn_exc'] = 1.0
+    if 'p_conn_inh' not in network:
+        network['p_conn_exc'] = 1.0  
+        
     #setting a minimum sinaptic delay if exc_t_ref_ms<=2.0
     min_syn_delay_ms = 3.0 if exc_t_ref_ms else 0.0
+    print("CHECK CHECK: min_syn_delay_ms", min_syn_delay_ms, "exc_t_ref_ms", exc_t_ref_ms)
     
     use_recurrency = network["use_exc_recurrency"]
     if is_verbose:
@@ -188,9 +194,14 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
     
     #how many neurons
     nest_pms["network"]={}
-    nest_pms["network"]["num_exc_neu_per_pop"]=num_exc_neu_per_pop
-    nest_pms["network"]["num_exc_pop"]=num_exc_pop
+    nest_pms["network"]["num_exc_neu_per_pop"]=network['num_exc_neu_per_pop']
+    nest_pms["network"]["num_exc_pop"]=network['num_exc_pop']
     nest_pms["network"]["num_inh_neu"]=num_inh_neu
+    
+    #connection rules
+    nest_pms["network"]["conn_rule"] = network['conn_rule']
+    nest_pms["network"]["p_conn_exc"] = network['p_conn_exc']
+    nest_pms["network"]["p_conn_inh"] = network['p_conn_inh']
     
     #synaptic weights
     nest_pms["network"]["use_exc_recurrency"]=use_recurrency

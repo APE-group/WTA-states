@@ -9,6 +9,7 @@ GABA_soma, AMPA_soma, GABA_dist, AMPA_dist, REFRACT_soma, ADAPT_soma, BETA_dist,
 
 
 def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
+
     sim_completed=False
     sim_pms=nest_pms["sim_pms"]
     nest.ResetKernel()
@@ -18,6 +19,9 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
     
     num_exc_neu_per_pop = nest_pms["network"]["num_exc_neu_per_pop"]
     num_exc_pop = nest_pms["network"]["num_exc_pop"]
+    conn_rule = nest_pms["network"]["conn_rule"]
+    p_conn_exc = nest_pms["network"]["p_conn_exc"]
+    p_conn_inh = nest_pms["network"]["p_conn_exc"]
 
     use_single_compartment_environment=nest_pms["use_single_compartment_environment"]
     print("IN nest_reset_create_connect_simulate: use_single_compartment_environment =", use_single_compartment_environment)
@@ -98,7 +102,10 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
 
     exc_to_exc_delay_ms = min_syn_delay_ms + exc_t_ref_ms + 1.0
     inh_to_inh_delay_ms = min_syn_delay_ms + exc_t_ref_ms + 1.0
-    conn_spec_dict = {"rule": "all_to_all", "allow_autapses": False}
+    assert(conn_rule == 'pairwise_bernoulli')
+    conn_spec_dict_exc = {"rule": conn_rule, "p": p_conn_exc, "allow_autapses": False}
+    conn_spec_dict_inh = {"rule": conn_rule, "p": p_conn_inh, "allow_autapses": False}
+
       
     # 2024-1002 - Solving issue 34
     present_intra_exc = {}
@@ -107,16 +114,16 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
 
     if(use_single_compartment_environment):
         for i in range(num_exc_pop):
-            nest.Connect(neurons[i], neurons[i], conn_spec_dict,\
+            nest.Connect(neurons[i], neurons[i], conn_spec_dict_exc,\
                 syn_spec={"weight": recurrent_weight, "delay": exc_to_exc_delay_ms})
             present_intra_exc[i] = {'syn_type': 'static_synapse'}
     else:
         for i in range(num_exc_pop):
-            nest.Connect(neurons[i], neurons[i], conn_spec_dict,\
+            nest.Connect(neurons[i], neurons[i], conn_spec_dict_exc,\
                 syn_spec={"weight": recurrent_weight, "delay": exc_to_exc_delay_ms, 'receptor_type': ALPHAexc_soma})
             present_intra_exc[i] = {'syn_type': 'static_synapse'}
             
-    nest.Connect(inh_neurons, inh_neurons, conn_spec_dict,\
+    nest.Connect(inh_neurons, inh_neurons, conn_spec_dict_inh,\
                 syn_spec={"weight": inh_to_inh_weight, "delay": inh_to_inh_delay_ms})
     
     # Connect inhibitory neurons to all excitatory neurons and vice versa
@@ -124,14 +131,14 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
     exc_to_inh_delay_ms = min_syn_delay_ms + 0.5
     for pop in neurons:
         if use_single_compartment_environment:        
-            nest.Connect(inh_neurons, pop, {"rule": "all_to_all"},\
+            nest.Connect(inh_neurons, pop, conn_spec_dict_inh,\
                 syn_spec={"weight": inh_to_exc_weight, "delay": inh_to_exc_delay_ms})
-            nest.Connect(pop, inh_neurons, {"rule": "all_to_all"},\
+            nest.Connect(pop, inh_neurons, conn_spec_dict_exc,\
                 syn_spec={"weight": exc_to_inh_weight, "delay": exc_to_inh_delay_ms})
         else:
-            nest.Connect(inh_neurons, pop, {"rule": "all_to_all"},\
+            nest.Connect(inh_neurons, pop, conn_spec_dict_inh,\
                 syn_spec={"weight": -inh_to_exc_weight, "delay": inh_to_exc_delay_ms, 'receptor_type': ALPHAinh_soma})
-            nest.Connect(pop, inh_neurons, {"rule": "all_to_all"},\
+            nest.Connect(pop, inh_neurons, conn_spec_dict_exc,\
                 syn_spec={"weight": exc_to_inh_weight, "delay": exc_to_inh_delay_ms})
 
     # Create and connect Poisson generators if enabled
@@ -237,7 +244,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
             nest.Disconnect(existing_conns)
             present_intra_exc[exc_pop_to_be_disconnected] = {'syn_type': False}
             # Next lines reconnect with zero values 
-            conn_spec_dict = {"rule": "all_to_all", "allow_autapses": False}
+            conn_spec_dict = conn_spec_dict_exc
             syn_spec_dict = {"weight": 0.0, "delay": exc_to_exc_delay_ms}
             if use_single_compartment_environment == False:
                 syn_spec_dict.update({'receptor_type': ALPHAexc_soma})
@@ -253,7 +260,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
             exc_pop_to_be_made_plastic = requested_action['target_exc_pop'] 
             assert(exc_pop_to_be_made_plastic >= 0 and exc_pop_to_be_made_plastic < num_exc_pop)
             Wmax = recurrent_weight * requested_action['W_max_factor']
-            conn_spec_dict = {"rule": "all_to_all", "allow_autapses": False}
+            conn_spec_dict = conn_spec_dict_exc
             syn_spec_dict = {'synapse_model': 'stdp_synapse', "Wmax": Wmax,
                              "tau_plus": 20, "lambda":0.1, "alpha":1.2, 
                              "mu_plus": 1.0, "mu_minus": 1.0,
