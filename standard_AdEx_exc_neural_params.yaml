@@ -15,3 +15,4 @@ equation_params:
     b_NREM: 200.0
     E_L_NREM: -68.0
     V_reset_NREM: -65.0
+
