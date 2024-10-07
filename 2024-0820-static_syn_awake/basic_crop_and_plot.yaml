@@ -30,7 +30,7 @@ plot:
     high_freq_spectrum:
         max_plot_freq_Hz: 250.0
         #next in frequency samples
-        smoothing_lenght: 20
+        smoothing_length: 20
         plot: True
     high_freq_spectrogram:
         plot: True
@@ -48,7 +48,7 @@ plot:
     tissue_response_spectrum:
         max_plot_freq_Hz: 40.0
         #next in frequency samples
-        smoothing_lenght: 4
+        smoothing_length: 4
         plot: True
     tissue_response_spectrogram:
         plot: True
