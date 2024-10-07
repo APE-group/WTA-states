@@ -7,8 +7,9 @@ This work has been cofunded by the European Next Generation EU grants Italian MU
 # LOG OF MAIN EVENTS (from recent to past)
 
 2024-1004 to 2024-1007 solved four issues:
-- commit #48 solving BUG issue #47: rates and spectral analysis for short analysis durations #47
-- commit #46 solving BUG issue #32: measure of firing rate when a pop has zero spikes in the time window.
+- merged pull request #50 solving issue #45 add-actions-to-switch-on-plasticity-set-learning-parrameters-and-disconnect-synapses. 
+- merged pull request #48 solving BUG issue #47: rates and spectral analysis for short analysis durations #47
+- merged pull request #46 solving BUG issue #32: measure of firing rate when a pop has zero spikes in the time window.
 - #43 specify plasticity default parameters in config file
 - #39 Add first approximation of background recurrency (can set inter_assemblies connectivity to existing (True) or non existing (False))
 and attibute initial values for the weights in ...general_config.yaml files
