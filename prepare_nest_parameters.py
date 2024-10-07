@@ -27,7 +27,18 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
     
     nest_pms["exc_pms"] = exc_pms
     nest_pms["inh_pms"] = inh_pms
-    exc_t_ref_ms=0.0
+    
+    if 't_ref' not in exc_pms['equation_params']: 
+        exc_t_ref_ms=0.0 
+    else: 
+        exc_t_ref_ms=exc_pms['equation_params']['t_ref']
+    
+    #setting the sinaptic delay
+    if exc_t_ref_ms <= 2.0: #ms
+        network['min_syn_delay_ms'] = 2.1
+    else:
+        network['min_syn_delay_ms'] = exc_t_ref_ms + 0.1
+
     
 
     # Calculate number of inhibitory neurons based on excitatory populations and neurons per pop
@@ -41,12 +52,7 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
         network['p_conn_exc'] = 1.0
     if 'inter_pop_conn' not in network:
         network['inter_pop_conn'] = False
-
-        
-    #setting a minimum sinaptic delay if exc_t_ref_ms<=2.0
-    min_syn_delay_ms = 3.0 if exc_t_ref_ms else 0.0
-    print("CHECK CHECK: min_syn_delay_ms", min_syn_delay_ms, "exc_t_ref_ms", exc_t_ref_ms)
-    
+   
     use_recurrency = network["use_exc_recurrency"]
     if is_verbose:
         print("use_exc_recurrency:",use_recurrency)
@@ -79,7 +85,7 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
         network['default_plasticity']['lambda'] = 0.1   
         network['default_plasticity']['alpha'] = 1.2
         network['default_plasticity']['mu_plus'] = 1.0   
-        network['default_plasticity']['mu_minus'] = 1.0  
+        network['default_plasticity']['mu_minus'] = 1.0 
         network['default_plasticity']['weight'] = 0.01      
         network['default_plasticity']['Wmax'] = recurrent_weight  
         network['default_plasticity']['delay'] = 'from-exc_to_exc_delay_ms'  
@@ -233,7 +239,9 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
     nest_pms["network"]["weights"]["inh_to_inh_weight"] = inh_to_inh_weight
     if network['inter_pop_conn'] == True:
         nest_pms["network"]["weights"]["inter_pop_weight"] = inter_pop_weight
-    nest_pms["network"]["min_syn_delay_ms"]=min_syn_delay_ms
+    
+    #synaptic delay
+    nest_pms["network"]["min_syn_delay_ms"] = network['min_syn_delay_ms']
 
     #plasticity default parameter (if switched on)
     nest_pms["network"]["default_plasticity"] = network['default_plasticity']
