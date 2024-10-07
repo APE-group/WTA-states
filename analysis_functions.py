@@ -7,6 +7,51 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import spectrogram, butter, filtfilt
 
+def preliminary_sim_look(debug_mode, nest_pms, spike_recorders, inh_spike_recorder, recording_pms):
+    if debug_mode:
+        num_exc_neu_per_pop = nest_pms["network"]["num_exc_neu_per_pop"]
+        num_exc_pop = nest_pms["network"]["num_exc_pop"]
+        num_inh_neu = nest_pms["network"]["num_inh_neu"]
+        total_exc_pop_spikes = [0 for _ in range(num_exc_pop)] 
+        average_exc_pop_firing_rate_Hz = [0 for _ in range(num_exc_pop)]
+
+        for i in range(num_exc_pop):
+            d = nest.GetStatus(spike_recorders[i], "events")[0]
+            times = d.get("times", [])
+            senders = d.get("senders", [])
+            total_exc_pop_spikes[i] = len(times)
+
+            if total_exc_pop_spikes[i] > 0:
+                print(f"pop {i} first recorded event at time {times[0]} from sender {senders[0]}")
+                print(f"pop {i} last recorded event at time {times[-1]} from sender {senders[-1]}")
+            else:
+                print(f"pop {i} No spikes recorded.")
+
+            print(f"pop {i} total_exc_pop_spikes = {total_exc_pop_spikes[i]}")
+            average_exc_pop_firing_rate_Hz[i] = (
+                total_exc_pop_spikes[i] / num_exc_neu_per_pop
+            ) * (1000.0 / recording_pms["duration_ms"])  # 1000 ms in one s
+            print(f"pop {i} average_exc_pop_firing_rate_Hz = {average_exc_pop_firing_rate_Hz[i]} Hz")
+
+        d_inh = nest.GetStatus(inh_spike_recorder, "events")[0]
+        times_inh = d_inh.get("times", [])
+        senders_inh = d_inh.get("senders", [])
+        total_inh_spikes = len(times_inh)
+
+        if total_inh_spikes > 0:
+            print(f"INHIBITORIES first recorded event at time {times_inh[0]} from sender {senders_inh[0]}")
+            print(f"INHIBITORIES last recorded event at time {times_inh[-1]} from sender {senders_inh[-1]}")
+        else:
+            print("INHIBITORIES No spikes recorded.")
+
+        print(f"INHIBITORIES total_inh_pop_spikes = {total_inh_spikes}")
+        average_inh_firing_rate_Hz = (
+            total_inh_spikes / num_inh_neu
+        ) * (1000.0 / recording_pms["duration_ms"])  # 1000 ms in one s
+        print(f"INHIBITORIES average_inh_firing_rate_Hz = {average_inh_firing_rate_Hz} Hz")
+
+
+"""
 #in debug_mode giving a first look before starting the analysis
 def preliminary_sim_look(debug_mode,nest_pms, spike_recorders, inh_spike_recorder, recording_pms):
     if debug_mode:
@@ -32,6 +77,7 @@ def preliminary_sim_look(debug_mode,nest_pms, spike_recorders, inh_spike_recorde
         average_inh_firing_rate_Hz=\
             (total_inh_spikes/num_inh_neu) * (1000./recording_pms["duration_ms"]) #1000 ms in one s 
         print("INHIBITORIES", i, "average_inh_firing_rate_Hz=", average_inh_firing_rate_Hz,"Hz")   
+"""
 
 def crop_events_from_spike_recorders(crop_pms, spike_recorders):
     cropped_events = []  # Initialize an empty list to hold the cropped events for each recorder
