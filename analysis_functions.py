@@ -467,8 +467,12 @@ def set_final_crop_pms(crop_pms, nest_pms, verbose):
         crop_pms['duration_ms'] = crop_pms["stop_ms"] - crop_pms["start_ms"]
         crop_pms['delay_ms'] = 0.0    
     else:
-        crop_pms['start_ms'] = crop_pms['delay_ms'] + nest_pms["recording_pms"]["start_ms"]
+        crop_pms['start_ms'] = nest_pms["recording_pms"]["start_ms"] + crop_pms['delay_ms']
+        assert(crop_pms['delay_ms']>=0.0 and crop_pms['start_ms']<=nest_pms["recording_pms"]["stop_ms"])
         crop_pms['stop_ms'] = crop_pms['start_ms'] + crop_pms['duration_ms']
+        assert(crop_pms['duration_ms']>=0.0 and crop_pms['stop_ms']<=nest_pms["recording_pms"]["stop_ms"])
+        crop_pms['duration_ms'] = crop_pms["stop_ms"] - crop_pms["start_ms"]
+        
     
     if verbose:
         print("FINAL crop_pms values", crop_pms)

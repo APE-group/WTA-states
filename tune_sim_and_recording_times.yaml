@@ -3,7 +3,7 @@ sim_pms:
     stop_ms: 45000.0
     resolution_ms: 0.1
 recording_pms:
-    start_ms: 0000.0
+    start_ms: 1000.0
     stop_ms: 45000.0
 # possible target_exc_pop: for all actions on synaptic connections:
 # single pop, use int value, e.g. target_exc_pop: 2
