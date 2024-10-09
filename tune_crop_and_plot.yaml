@@ -1,9 +1,10 @@
 crop:
     #If default_cropping is True, plots are performed over the full recording period
     default_cropping: True
-    #the following applies only if default_cropping is False
-    delay_ms: 20500.0
-    duration_ms: 400.0
+    #the following applies only if default_cropping is False. 
+    #delay_ms is from recording start as defined in _sim_and_recording_times
+    delay_ms: 2000.0
+    duration_ms: 1000.0
 sampling:
     spikes_sampling_window_ms: 0.2
     low_freq_sampling_window_ms: 12.5
