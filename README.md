@@ -6,7 +6,9 @@ This work has been cofunded by the European Next Generation EU grants Italian MU
 
 # LOG OF MAIN EVENTS (from recent to past)
 
-2024-1004 to 2024-1007 solved four issues:
+2024-1004 to 2024-1009 solved the follwing issues:
+- solved bug #51 furter restringing the analysis window in _crop_and_plot.yaml
+- removed unnecessarily tracke overwrite_output directory
 - merged pull request #50 solving issue #45 add-actions-to-switch-on-plasticity-set-learning-parrameters-and-disconnect-synapses. 
 - merged pull request #48 solving BUG issue #47: rates and spectral analysis for short analysis durations #47
 - merged pull request #46 solving BUG issue #32: measure of firing rate when a pop has zero spikes in the time window.
