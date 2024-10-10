@@ -34,8 +34,8 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
         exc_t_ref_ms=exc_pms['equation_params']['t_ref']
     
     #setting the sinaptic delay
-    if exc_t_ref_ms <= 2.0: #ms
-        network['min_syn_delay_ms'] = 2.1
+    if exc_t_ref_ms <= 0.5: #ms
+        network['min_syn_delay_ms'] = 0.6
     else:
         network['min_syn_delay_ms'] = exc_t_ref_ms + 0.1
 

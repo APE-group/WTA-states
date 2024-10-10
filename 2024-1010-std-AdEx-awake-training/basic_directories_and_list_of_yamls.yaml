@@ -1,11 +1,11 @@
 #if relative_output_dir == 'overwrite_dir' files are copied 
 #there and plots are stored there without checking for overwriting
-relative_output_dir: 'overwrite_dir'
+relative_output_dir: '2024-1008-std-AdEx-awake-training'
 
 #otherwise select an interesting dir name like:
 #relative_output_dir: '2024-0820-static_syn_awake'
 #relative_output_dir: '2024-0820-static_syn_awake'
-#relative_output_dir: '2024-1010-std-AdEx-awake-training'
+#relative_output_dir: '2024-1007-4pops-plastic-only-pop-0-1'
 
 #please do not modify the following list
 #it is not used everywhere. Work in progress
