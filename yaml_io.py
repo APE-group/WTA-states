@@ -162,4 +162,61 @@ def copy_yamls_in_output_dir(directories_and_list_of_yamls,verbose):
         if verbose:
             print(f"File '{input_file_name}' copied to '{destination_file_name}'.")
 
+    return output_dir_name
+
+def copy_yamls_in_output_dir(directories_and_list_of_yamls,verbose):
+    # Define the directory and file paths
+    current_dir_name = os.getcwd() 
+    relative_output_dir_name=\
+      directories_and_list_of_yamls['relative_output_dir']
+    
+    if verbose:
+        print("in copy_yamls_in_output_directory: current execution directory:", current_dir_name)
+        print("in copy_yamls_in_output_directory: relative_output_dir:", relative_output_dir_name)
+    output_dir_name = current_dir_name + "/" + relative_output_dir_name
+    if verbose:
+        print("in copy_yamls_in_output_directory: output dir:", output_dir_name)    
+  
+    # Check if the directory exists
+    if not os.path.exists(output_dir_name):
+        os.makedirs(output_dir_name)
+        print(f"Directory '{output_dir_name}' created.")
+    else:
+        if relative_output_dir_name != 'overwrite_dir':
+            response = input(f"Directory '{output_dir_name}' already exists. Do you want to continue? (y/n): ")
+            if response.lower() != 'y':
+                print("Operation aborted.")
+                exit()
+    file_names = directories_and_list_of_yamls['config_yaml_files']
+    # Copy the files to the directory
+    for file_name in file_names: 
+        input_file_name = current_dir_name + "/" + file_name
+        destination_file_name = output_dir_name + "/" + file_name
+        shutil.copy(input_file_name, destination_file_name)
+        if verbose:
+            print(f"File '{input_file_name}' copied to '{destination_file_name}'.")
+
+    return output_dir_name
+
+def copy_neu_params_yamls_in_output_dir(output_dir_name, config, verbose):
+    assert(os.path.exists(output_dir_name))
+    current_dir_name = os.getcwd()
+    
+    #copying the yaml describing inhibitory neurons
+    input_file_name = current_dir_name + "/" + config['inh_neu_params_filename']
+    destination_file_name = output_dir_name + "/" + config['inh_neu_params_filename']
+    shutil.copy(input_file_name, destination_file_name)
+    if verbose:
+        print(f"File '{input_file_name}' copied to '{destination_file_name}'.")
+
+    #copying the yaml describing excitatory neurons
+    input_file_name = current_dir_name + "/" + config['exc_neu_params_filename']
+    destination_file_name = output_dir_name + "/" + config['exc_neu_params_filename']
+    shutil.copy(input_file_name, destination_file_name)
+    if verbose:
+        print(f"File '{input_file_name}' copied to '{destination_file_name}'.")
     return
+            
+        
+        
+        
