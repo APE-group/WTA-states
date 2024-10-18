@@ -1,0 +1,81 @@
+#parameters dowloaded on 2024-1017 
+#from https://nest-simulator.readthedocs.io/en/stable/model_details/aeif_models_implementation.html
+#NEST implementation of the aeif models
+#RS parameters 
+#Hans Ekkehard Plesser and Tanguy Fardet, 2016-09-09
+#Updated by Hans Ekkehard Plesser, 2023-08-25
+multi_compartment: False
+neuron_kind: "excitatory"
+equation_params:
+    V_reset_awake: -58.0
+    V_peak: 0.0
+    V_th: -50.0
+    g_L: 11.0
+    tau_w: 300.0
+    E_L_awake: -70.0
+    Delta_T: 2.0
+    #a is set to 3.0 in NEST documentation above
+    a: 3.0
+    #b_awake is set to 0.0 in NEST documentation
+    b_awake: 0.0
+    C_m: 200.0
+    t_ref: 0.0
+    V_m: -70.0
+    #V_m! must be equal to E_L
+    w: 5.0  
+    #w! must be equal to 5.
+    b_NREM: 200.0
+    E_L_NREM: -68.0
+    V_reset_NREM: -65.0
+
+## Regular spiking
+#aeif_param = {
+#    "V_reset": -58.0,
+#    "V_peak": 0.0,
+#    "V_th": -50.0,
+#    "I_e": 420.0,
+#    "g_L": 11.0,
+#    "tau_w": 300.0,
+#    "E_L": -70.0,
+#    "Delta_T": 2.0,
+#    "a": 3.0,
+#    "b": 0.0,
+#    "C_m": 200.0,
+#    "V_m": -70.0,  #! must be equal to E_L
+#    "w": 5.0,  #! must be equal to 5.
+#    "tau_syn_ex": 0.2,
+#}
+
+## Bursting
+#aeif_param2 = {
+#    "V_reset": -46.0,
+#    "V_peak": 0.0,
+#    "V_th": -50.0,
+#    "I_e": 500.0,
+#   "g_L": 10.0,
+#    "tau_w": 120.0,
+#    "E_L": -58.0,
+#    "Delta_T": 2.0,
+#    "a": 2.0,
+#    "b": 100.0,
+#    "C_m": 200.0,
+#    "V_m": -58.0,  #! must be equal to E_L
+#    "w": 5.0,  #! must be equal to 5.
+#}
+
+## Close to chaos (use resolution < 0.005 and simtime #= 200)
+#aeif_param3 = {
+#    "V_reset": -48.0,
+#    "V_peak": 0.0,
+#    "V_th": -50.0,
+#    "I_e": 160.0,
+#    "g_L": 12.0,
+#    "tau_w": 130.0,
+#    "E_L": -60.0,
+#    "Delta_T": 2.0,
+#    "a": -11.0,
+#    "b": 30.0,
+#    "C_m": 100.0,
+#    "V_m": -60.0,  #! must be equal to E_L
+#    "w": 5.0,  #! must be equal to 5.
+#}
