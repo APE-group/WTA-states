@@ -1,0 +1,14 @@
+multi_compartment: False
+neuron_kind: "inhibitory"
+equation_params:
+    a: 0
+    b: 0
+    t_ref: 0.0
+    Delta_T: 2.0
+    C_m: 50.0
+    g_L: 5.0
+    E_L: -63.0
+    V_reset: -65.0
+    tau_w: 500.0
+    V_th: -50.0
+    V_peak: -40.0
