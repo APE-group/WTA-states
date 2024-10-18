@@ -7,7 +7,8 @@ This work has been cofunded by the European Next Generation EU grants Italian MU
 # LOG OF MAIN EVENTS (from recent to past)
 
 2024-1004 to 2024-1018 solved the follwing issues:
-- solved issue #55: added a directory neu_models_catalogue hosting interesting neural configurations
+- merged pull request #58 to solve enhancement issue 'copy neu params yaml in output dir' #57
+- solved enhancement issue #55: added a directory neu_models_catalogue hosting interesting neural configurations
 - solved bug #51 furter restringing the analysis window in _crop_and_plot.yaml
 - removed unnecessarily tracke overwrite_output directory
 - merged pull request #50 solving issue #45 add-actions-to-switch-on-plasticity-set-learning-parrameters-and-disconnect-synapses. 
