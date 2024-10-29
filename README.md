@@ -6,7 +6,7 @@ This work has been cofunded by the European Next Generation EU grants Italian MU
 
 # TRY ON EBRAINS (still under debugging the matplotlib support)
 
-[try on EBRAINS](https://lab.ebrains.eu/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2FAPE-group%2FWTA-states&urlpath=lab%2Ftree%2FWTA-states%2FWTA-awake-sleep.ipynb&branch=main)
+[![](https://nest-simulator.org/TryItOnEBRAINS.png)](https://lab.ebrains.eu/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2FAPE-group%2FWTA-states&urlpath=lab%2Ftree%2FWTA-states%2FWTA-awake-sleep.ipynb&branch=main)
 
 # LOG OF MAIN EVENTS (from recent to past)
 
