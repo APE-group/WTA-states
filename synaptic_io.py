@@ -20,12 +20,8 @@ def load_syn(file_name, verbose):
         synaptic_weights = pop_dict['connections']['weight'].values  #         Extract the weights as a numpy array
         mean_weight = np.mean(synaptic_weights)
         std_weight = np.std(synaptic_weights)
-    
-        if index==0 or index==1:
-            print("Connection group", index)
-            print("time (ms)",time_ms)
-            print("synapse_model",synapse_model)
-            print(f"  Mean Weight: {mean_weight:.4f}")
-            print(f"  Standard Deviation: {std_weight:.4f}")
+        print("synapse_model",synapse_model)
+        print(f"  Mean Weight: {mean_weight:.4f}")
+        print(f"  Standard Deviation: {std_weight:.4f}")
     
     return array_of_dicts
