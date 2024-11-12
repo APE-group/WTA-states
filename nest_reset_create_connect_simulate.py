@@ -119,12 +119,13 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
     else:
         syn_spec={"weight": recurrent_weight, "delay": exc_to_exc_delay_ms, 'receptor_type': ALPHAexc_soma}
         
+    #set initial intra-pop connections    
     for i in range(num_exc_pop):
-        static_synapse_intra_i='static_synapse_intra_'+str(i)
-        nest.CopyModel('static_synapse',static_synapse_intra_i)
+        static_synapse_i_i='static_synapse_'+str(i)+'_'+str(i)
+        nest.CopyModel('static_synapse',static_synapse_i_i)
         nest.Connect(neurons[i], neurons[i], conn_spec_dict_exc,\
-                syn_spec={"synapse_model": static_synapse_intra_i, "weight": recurrent_weight, "delay": exc_to_exc_delay_ms})
-        present_exc_conn[i][i] = {'synapse_model': static_synapse_intra_i} 
+                syn_spec={"synapse_model": static_synapse_i_i, "weight": recurrent_weight, "delay": exc_to_exc_delay_ms})
+        present_exc_conn[i][i] = {'synapse_model': static_synapse_i_i} 
 
     #inter assemblies connections: initial set-up
     if nest_pms["network"]["inter_pop_conn"] == True:
@@ -134,11 +135,11 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
         for i in range(num_exc_pop):
             for j in range(num_exc_pop):
                 if i != j:
-                    static_synapse_i_j='static_synapse'+str(i)+str(j)
+                    static_synapse_i_j='static_synapse_'+str(i)+'_'+str(j)
                     nest.CopyModel('static_synapse',static_synapse_i_j)
                     syn_spec={"synapse_model":static_synapse_i_j,"weight": inter_pop_weight, "delay": exc_to_exc_delay_ms}
                     nest.Connect(neurons[i], neurons[j], conn_spec_dict_exc, syn_spec)
-                    present_exc_conn[i][i]['synapse_model'] = static_synapse_i_j
+                    present_exc_conn[i][j]['synapse_model'] = static_synapse_i_j
 
     #inh to inh connections: initial setup
     nest.CopyModel('static_synapse','static_synapse_inh_inh')
@@ -271,14 +272,24 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
         assert(source_exc_pop >= 0 and source_exc_pop < num_exc_pop)
         assert(target_exc_pop >= 0 and target_exc_pop < num_exc_pop)
         new_syn_model = default_plasticity['synapse_model']+'_'+str(source_exc_pop)+'_'+str(target_exc_pop)
-
+        if verbose:
+            print("in make_plastic_conn: new_syn_model = ", new_syn_model)
+            
         if new_syn_model not in nest.Models(mtype='synapses'):
-
-    
+            if verbose:
+                print("in make_plastic_conn: new_syn_model not already among Models")
             if present_exc_conn[source_exc_pop][target_exc_pop]['synapse_model'] != False:
+                if verbose:
+                    print("in make_plastic_conn: present_exc_conn =",present_exc_conn[source_exc_pop][target_exc_pop]['synapse_model'])
+                    print("in make_plastic_conn: before GetConnections (old set)")  
                 existing_conns = nest.GetConnections(neurons[source_exc_pop],
-                            neurons[target_exc_pop], synapse_model=present_exc_conn[source_exc_pop][target_exc_pop]['synapse_model'])
+                            neurons[target_exc_pop], 
+                            synapse_model=present_exc_conn[source_exc_pop][target_exc_pop]['synapse_model'])
+                if verbose:
+                    print("in make_plastic_conn: before Disconnect (old set)")
                 nest.Disconnect(existing_conns)
+                if verbose:
+                    print("in make_plastic_conn: after Disconnect (old set)")
                 present_exc_conn[source_exc_pop][target_exc_pop] = {'synapse_model': False}
 
             conn_spec_dict = conn_spec_dict_exc
@@ -294,8 +305,12 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
                              "delay": exc_to_exc_delay_ms}
             if use_single_compartment_environment==False:
                     syn_spec_dict.update({'receptor_type': ALPHAexc_soma})
+            if verbose:
+                print("in make_plastic_conn: before connecting ",new_syn_model) 
             nest.Connect(neurons[source_exc_pop], neurons[target_exc_pop],
                          conn_spec_dict, syn_spec_dict)
+            if verbose:
+                print("in make_plastic_conn: after connecting ",new_syn_model) 
             present_exc_conn[source_exc_pop][target_exc_pop] = {'synapse_model': new_syn_model}
             if verbose:
                 print("Wmax =", Wmax, "initial_weight", default_plasticity['weight'])
@@ -439,6 +454,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
             print("at time (ms):", tot_simulated_time_ms)
         array_of_dicts = []
         for i in range(num_exc_pop):
+
             synapse_model = present_exc_conn[i][i]['synapse_model']
             array_of_dicts.append(\
                 {"time (ms)": tot_simulated_time_ms,\
@@ -446,16 +462,6 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
                 "synapse_model":present_exc_conn[i][i]['synapse_model'],\
                 "connections": nest.GetConnections(source=neurons[i],target=neurons[i],
                            synapse_model=synapse_model).get(("source", "target", "weight"), output="pandas")})
-            
-        print("DEBUG STORE SYN - present_exc_conn[0][1]['synapse_model']",present_exc_conn[0][1]['synapse_model'])    
-        if present_exc_conn[0][1]['synapse_model'] != False:
-            synapse_model = present_exc_conn[0][1]['synapse_model']
-            array_of_dicts.append(\
-                {"time (ms)": tot_simulated_time_ms,\
-                "conn_index": 'inter',\
-                "connections": nest.GetConnections(source=neurons[0],target=neurons[1],
-                           synapse_model=synapse_model).get(("source", "target", "weight"), output="pandas")})
-            
         with open(file_name, "wb") as f:
             pickle.dump(array_of_dicts, f, pickle.HIGHEST_PROTOCOL)
         list_of_syn_matrix_file_names.append(file_name)
@@ -464,13 +470,14 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
     def simulate(verbose):
         # Run the simulation
         if verbose:
-            print("in nest_..._simulate: just before nest.Simulate")
+            print("in nest_..._simulate: LIST OF PLANNED ACTIONS")
             for item in nest_pms['events_pms']:
                 if 'action' in item:
                         print("ACTION",item['action'])
                 if 'sim_period_ms' in item:    
                     if verbose:       
-                        print("expected NEXT SIM PERIOD ms",item['sim_period_ms']) 
+                        print("expected NEXT SIM PERIOD ms",item['sim_period_ms'])
+            print("in nest_..._simulate: JUST BEFORE ACTUAL EXECUTION")
     
         tot_simulated_time_ms=0.0
         if 'events_pms' in nest_pms:
