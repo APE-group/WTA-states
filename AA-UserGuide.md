@@ -13,45 +13,12 @@ Welcome to WTA-states! This User Guide will help you get started and walk you th
 ### Prerequisites
 
 - Operating System: Linux or macOS
-- Dependencies: Python 3.8+, NEST Simulator, Jupyter Notebook
+- Main Dependencies: Python 3.8+, NEST Simulator, Jupyter Lab
+- Other dependencies: yaml, numpy, matplotlib, scipy.signal 
 - System Requirements: Minimum 8GB RAM, CPU with multiple cores recommended
 
-### Installation Steps
-
-1. Clone the repository from GitHub:
-
-   ```bash
-   git clone https://github.com/yourusername/WTA-states.git
-   ```
-
-2. Navigate to the project directory:
-
-   ```bash
-   cd WTA-states
-   ```
-
-3. Install dependencies:
-
-4. Install the NEST Simulator by following the official guide: [NEST Installation](https://nest-simulator.readthedocs.io/en/stable/installation/index.html)
-
-5. Run the software:
-
-   ```bash
-   jupyter notebook WTA-awake-sleep.ipynb
-   ```
-
-## Getting Started
-
-After installation, follow these steps to start using WTA-states:
-
-1. Launch the Jupyter Notebook by running:
-   ```bash
-   jupyter notebook WTA-awake-sleep.ipynb
-   ```
-2. Access the user interface through your web browser.
-3. Create your first simulation by executing the cells in the notebook step-by-step and adjusting the parameters as needed.
-
 ## Key Features
+- MAIN FILE TO BE LAUNCHED: WTA-awake-sleep.ipynb
 
 ### Feature 1: Brain State Simulation
 
