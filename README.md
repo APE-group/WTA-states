@@ -4,11 +4,13 @@ Exercises combining brain states and soft winner takes all
 # Acknowledgemt of fundings
 This work has been cofunded by the European Next Generation EU grants Italian MUR CUP I53C22001400006 (FAIR PE0000013 PNRR Project).
 
-# TRY ON EBRAINS (still under debugging the matplotlib support)
+# TRY ON EBRAINS
 
 [![](https://nest-simulator.org/TryItOnEBRAINS.png)](https://lab.ebrains.eu/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2FAPE-group%2FWTA-states&urlpath=lab%2Ftree%2FWTA-states%2FWTA-awake-sleep.ipynb&branch=main)
 
 # LOG OF MAIN EVENTS (from recent to past)
+2024-1113-plastic-on-off release
+- (better provenance tracking) solved issue #57 by copying neural parameters yaml in output dirs
 
 2024-1004 to 2024-1018 solved the follwing issues:
 - merged pull request #58 to solve enhancement issue 'copy neu params yaml in output dir' #57
