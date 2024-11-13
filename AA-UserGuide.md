@@ -41,6 +41,12 @@ Welcome to WTA-states! This User Guide will help you get started and walk you th
   - Step 1: Modify the plasticity settings in the configuration files.
   - Step 2: Run the simulation to observe changes in network dynamics.
 
+### Feature 4: Compare the behaviour of single and two compartment neurons
+- **Description**: The software provides options to compare single and two compartment neurons, in particular during learning of novel memories.
+- **Usage**:
+  - Step 1: select the appropriate excitatory neuron model
+  - Step 2: set the time window for learning new memories
+
 ## YAML Configuration Files
 
 WTA-states uses several YAML files to configure different aspects of the simulation. Below is an explanation of each type of YAML file, along with details on the key parameters that can be specified.
