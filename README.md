@@ -8,7 +8,11 @@ This work has been cofunded by the European Next Generation EU grants Italian MU
 
 [![](https://nest-simulator.org/TryItOnEBRAINS.png)](https://lab.ebrains.eu/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2FAPE-group%2FWTA-states&urlpath=lab%2Ftree%2FWTA-states%2FWTA-awake-sleep.ipynb&branch=main)
 
+# USER GUIDE (preliminary)
+see file AA-UserGuide.md
+
 # LOG OF MAIN EVENTS (from recent to past)
+2024-1113 added a preliminary draft of User Guide
 2024-1113-plastic-on-off release
 - (better provenance tracking) solved issue #57 by copying neural parameters yaml in output dirs
 
