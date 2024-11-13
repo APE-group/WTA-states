@@ -6,7 +6,7 @@ This software is still in preliminary stages of development. Feel free to contac
 
 ## Introduction
 
-Welcome to WTA-states! This User Guide will help you get started and walk you through the key features of the software. WTA-states involves exercises combining brain states and a soft winner-takes-all mechanism, making it a valuable tool for neuroscientific research and modeling. Whether you're a beginner or an advanced user, you'll find everything you need here to make the most of your experience.
+Welcome to WTA-states! This User Guide will help you get started and walk you through the key features of the software. WTA-states involves exercises combining brain states and a soft winner-takes-all mechanism, observe learning and forgetting in single and two-compartment neurons.  It is a tool for computational neuroscience exploration, research and modeling. 
 
 ## Installation
 
