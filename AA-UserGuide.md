@@ -8,7 +8,12 @@ This software is still in preliminary stages of development. Feel free to contac
 
 Welcome to WTA-states! This User Guide will help you get started and walk you through the key features of the software. WTA-states involves exercises combining brain states and a soft winner-takes-all mechanism, observe learning and forgetting in single and two-compartment neurons.  It is a tool for computational neuroscience exploration, research and modeling. 
 
+# TRY ON EBRAINS
+
+[![](https://nest-simulator.org/TryItOnEBRAINS.png)](https://lab.ebrains.eu/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2FAPE-group%2FWTA-states&urlpath=lab%2Ftree%2FWTA-states%2FWTA-awake-sleep.ipynb&branch=main)
+
 ## Installation
+We advise the beginner to try the above optionm running on EBRAINS. Howver, if you like to adventure on installation on your local system, you find below a summary of the main steps.
 
 ### Prerequisites
 
