@@ -329,13 +329,15 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
             present_exc_conn[source_exc_pop][target_exc_pop] = {'synapse_model': False}
         # Next lines reconnect with zero values 
         conn_spec_dict = conn_spec_dict_exc
-        nest.CopyModel('static_synapse','static_synapse_weight_zero')
-        syn_spec_dict = {"synapse_model":'static_synapse_weight_zero',"weight": 0.0, "delay": exc_to_exc_delay_ms}
+        new_disconnected_static_syn_model = \
+            'static_synapse_weight_zero_'+str(source_exc_pop)+'_'+str(target_exc_pop)
+        nest.CopyModel('static_synapse',new_disconnected_static_syn_model)
+        syn_spec_dict = {"synapse_model":new_disconnected_static_syn_model,"weight": 0.0, "delay": exc_to_exc_delay_ms}
         if use_single_compartment_environment == False:
             syn_spec_dict.update({'receptor_type': ALPHAexc_soma})
         nest.Connect(neurons[source_exc_pop], neurons[target_exc_pop], 
                              conn_spec_dict, syn_spec_dict)
-        present_exc_conn[source_exc_pop][target_exc_pop] = {'synapse_model': 'static_synapse_weight_zero', 'weight': 0.0}
+        present_exc_conn[source_exc_pop][target_exc_pop] = {'synapse_model': new_disconnected_static_syn_model, 'weight': 0.0}
         return
 
     def perform_event_action(requested_action, tot_simulated_time_ms, verbose):

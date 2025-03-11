@@ -56,6 +56,12 @@ events_pms:
     sim_period_ms: 1000.0
     #14000 total
   - action:
+      kind: 'disconnect_exc_pop_syn'
+      target_exc_pop: 0
+  - action:
+      kind: 'disconnect_exc_pop_syn'
+      target_exc_pop: 1
+  - action:
       kind: 'store_syn'
       syn_file_name: 'syn_matrix-after_learning-1-14000ms'
     sim_period_ms: 16000.0
