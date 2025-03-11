@@ -1,0 +1,24 @@
+#if relative_output_dir == 'overwrite_dir' files are copied 
+#there and plots are stored there without checking for overwriting
+#relative_output_dir: 'overwrite_dir'
+
+#otherwise select an interesting dir name like:
+#relative_output_dir: '2024-0820-static_syn_awake'
+#relative_output_dir: '2024-0820-static_syn_awake'
+#relative_output_dir: '2024-0919-std-AdEx-10HzTraining'
+#relative_output_dir: '2024-0919-Ca-AdEx-10HzTraining'
+#relative_output_dir: '2024-0920-std-AdEx-Train2-0s'
+#relative_output_dir: '2024-0920-Ca-AdEx-Train_50ms'
+#relative_output_dir: '2024-0920-Ca-AdEx-Train_25ms_4000c'
+relative_output_dir: '2025-0311-AdEx-Train_25ms_4000c'
+
+#please do not modify the following list
+#it is not used everywhere. Work in progress
+config_yaml_files:
+  - 'basic_sim_and_recording_times.yaml'
+  - 'tune_sim_and_recording_times.yaml'
+  - 'basic_general_config.yaml'
+  - 'tune_general_config.yaml'
+  - 'basic_crop_and_plot.yaml'
+  - 'tune_crop_and_plot.yaml'
+  - 'basic_directories_and_list_of_yamls.yaml'

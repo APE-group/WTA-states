@@ -1,0 +1,105 @@
+#state can be either "awake" or "NREM"
+#brain_state: "NREM"
+brain_state: "awake"
+use_single_compartment_environment: True
+#exc_neu_params_filename: "Ca-AdEx_neural_params.yaml"
+inh_neu_params_filename: "standard_AdEx_inh_neural_params.yaml"
+exc_neu_params_filename: "standard_AdEx_exc_neural_params.yaml" 
+#exc_neu_params_filename: "MC-g0_like-exc_neural_params.yaml"
+
+network:
+  use_exc_recurrency: True
+  num_exc_pop: 4  # Number of excitatory populations 
+  #num_exc_neu_per_pop: 20  # Number of excitatory AdEx neurons per pop
+  #use_poisson_generators: true
+  #num_poisson_generators: 20
+
+#conversion factor for synaptic conductances
+#cf: 1.0
+#estimated 2024-0708
+cf: 1.5
+
+weights:
+  awake:
+    #recurrent_weight: 0.0
+    recurrent_weight: 9.5
+
+    #inh_to_exc_weight: -0.85
+    #inh_to_exc_weight: 0.0
+
+    #exc_to_inh_weight: 7.0
+    #exc_to_inh_weight: 0.0
+
+    #inh_to_inh_weight: -1.0 
+    #inh_to_inh_weight: 0.0
+
+    #inter_pop_weight: 0.01
+    inter_pop_weight: 0.0
+
+  NREM:
+    recurrent_weight: 19.0
+    #inh_to_exc_weight: -1.7
+    #exc_to_inh_weight: 7.0 
+    #inh_to_inh_weight: -1.0
+
+    #inter_pop_weight: 0.02
+    inter_pop_weight: 0.0
+
+
+contextual_poisson:
+  awake:
+    basic_rate: 4000.0
+    poisson_weight: 0.6
+    spreading_factor: 4.0
+    events:
+    - start_time_ms: 5000.0
+      stop_time_ms: 5025.0
+      target_population: 0
+    - start_time_ms: 5100.0
+      stop_time_ms: 5125.0
+      target_population: 1
+    - start_time_ms: 44000.0
+      stop_time_ms: 44950.0
+      target_population: 2
+    - start_time_ms: 35000.0
+      stop_time_ms: 35200.0
+      target_population: 1
+    - start_time_ms: 41000.0
+      stop_time_ms: 41200.0
+      target_population: 0
+  NREM:
+    basic_rate: 1500.0
+    poisson_weight: 0.6
+    spreading_factor: 4.0
+    events:
+    - start_time_ms: 10000.0
+      stop_time_ms: 12000.0
+      target_population: 1
+    - start_time_ms: 15000.0
+      stop_time_ms: 17000.0
+      target_population: 0
+
+poisson:
+  awake:
+    poisson_noise_spreading_factor: 4.0
+    poisson_basic_rate: 600.0
+    #poisson_basic_rate: 600.0
+    poisson_delta: 0.0
+    poisson_weight: 0.6
+  NREM:
+    poisson_noise_spreading_factor: 4.0
+    #for standard adex poisson basic rate 600
+    #for MC-g0_like adex poisson basic rate 250
+    poisson_basic_rate: 200.0
+    poisson_delta: 0.0
+    poisson_weight: 0.6
+
+#dc_exc:
+  #amplitudes: [0, 0]
+  #weight: 1.0
+  #delay: 1.0
+
+#dc_inh:
+  #amplitude: 0.0
+  #weight: 1.0
+  #delay: 1.0
