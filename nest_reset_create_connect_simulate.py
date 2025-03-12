@@ -101,7 +101,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
     inh_to_inh_weight = nest_pms["network"]["weights"]["inh_to_inh_weight"]
 
     
-    exc_to_exc_delay_ms = min_syn_delay_ms 
+    exc_to_exc_delay_ms = min_syn_delay_ms + 1.
     inh_to_inh_delay_ms = min_syn_delay_ms + exc_t_ref_ms + 1.0
     assert(conn_rule == 'pairwise_bernoulli')
     conn_spec_dict_exc = {"rule": conn_rule, "p": p_conn_exc, "allow_autapses": False}
@@ -113,18 +113,15 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
         present_exc_conn[i]={}
         for j in range(num_exc_pop):
             present_exc_conn[i][j] = {'synapse_model': False}
-
-    if(use_single_compartment_environment):
-        syn_spec={"weight": recurrent_weight, "delay": exc_to_exc_delay_ms}
-    else:
-        syn_spec={"weight": recurrent_weight, "delay": exc_to_exc_delay_ms, 'receptor_type': ALPHAexc_soma}
         
     #set initial intra-pop connections    
     for i in range(num_exc_pop):
         static_synapse_i_i='static_synapse_'+str(i)+'_'+str(i)
         nest.CopyModel('static_synapse',static_synapse_i_i)
-        nest.Connect(neurons[i], neurons[i], conn_spec_dict_exc,\
-                syn_spec={"synapse_model": static_synapse_i_i, "weight": recurrent_weight, "delay": exc_to_exc_delay_ms})
+        syn_spec={"synapse_model": static_synapse_i_i, "weight": recurrent_weight, "delay": exc_to_exc_delay_ms}
+        if(not use_single_compartment_environment):
+            syn_spec.update({'receptor_type': ALPHAexc_soma})
+        nest.Connect(neurons[i], neurons[i], conn_spec_dict_exc, syn_spec)
         present_exc_conn[i][i] = {'synapse_model': static_synapse_i_i} 
 
     #inter assemblies connections: initial set-up
@@ -138,6 +135,8 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
                     static_synapse_i_j='static_synapse_'+str(i)+'_'+str(j)
                     nest.CopyModel('static_synapse',static_synapse_i_j)
                     syn_spec={"synapse_model":static_synapse_i_j,"weight": inter_pop_weight, "delay": exc_to_exc_delay_ms}
+                    if(not use_single_compartment_environment):
+                        syn_spec.update({'receptor_type': ALPHAexc_soma})
                     nest.Connect(neurons[i], neurons[j], conn_spec_dict_exc, syn_spec)
                     present_exc_conn[i][j]['synapse_model'] = static_synapse_i_j
 
@@ -164,23 +163,20 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
     #exc_to_inh_delay_ms = min_syn_delay_ms
     
     for i in range(num_exc_pop):
+        
+        # inh to exc(i)
         new_syn_model_inh_exc_n = 'static_synapse_inh_exc_'+str(i)
+        nest.CopyModel('static_synapse', new_syn_model_inh_exc_n)
+        syn_spec={"synapse_model": new_syn_model_inh_exc_n, "weight": inh_to_exc_weight, "delay": inh_to_exc_delay_ms}
+        if(not use_single_compartment_environment):
+            syn_spec.update({"weight": -inh_to_exc_weight, 'receptor_type': ALPHAinh_soma})
+        nest.Connect(inh_neurons, neurons[i], conn_spec_dict_inh, syn_spec)
+        
+        # exc(i) to inh    
         new_syn_model_exc_n_inh = 'static_synapse_exc_' + str(i) + '_inh'
-        if use_single_compartment_environment:  
-            nest.CopyModel('static_synapse', new_syn_model_inh_exc_n)
-            nest.Connect(inh_neurons, neurons[i], conn_spec_dict_inh,\
-                syn_spec={"synapse_model": new_syn_model_inh_exc_n, "weight": inh_to_exc_weight, "delay": inh_to_exc_delay_ms})
-            nest.CopyModel('static_synapse',new_syn_model_exc_n_inh)
-            nest.Connect(neurons[i], inh_neurons, conn_spec_dict_exc,\
-                syn_spec={"synapse_model": new_syn_model_exc_n_inh, "weight": exc_to_inh_weight, "delay": exc_to_inh_delay_ms})
-        else:
-            nest.CopyModel('static_synapse',new_syn_model_inh_exc_n)
-            nest.Connect(inh_neurons, neurons[i], conn_spec_dict_inh,\
-                syn_spec={"synapse_model":new_syn_model_inh_exc_n,"weight": -inh_to_exc_weight, 
-                          "delay": inh_to_exc_delay_ms, 'receptor_type': ALPHAinh_soma})
-            nest.CopyModel('static_synapse',new_syn_model_exc_n_inh)
-            nest.Connect(neurons[i], inh_neurons, conn_spec_dict_exc,\
-                syn_spec={"synapse_model":new_syn_model_exc_n_inh, "weight": exc_to_inh_weight, "delay": exc_to_inh_delay_ms})
+        nest.CopyModel('static_synapse', new_syn_model_exc_n_inh)
+        syn_spec={"synapse_model": new_syn_model_exc_n_inh, "weight": exc_to_inh_weight, "delay": exc_to_inh_delay_ms}
+        nest.Connect(neurons[i], inh_neurons, conn_spec_dict_exc, syn_spec)      
 
     # Create and connect Poisson generators if enabled
     use_poisson_generators=nest_pms["network"]["use_poisson_generators"]

@@ -1,78 +1,55 @@
 #PLEASE modify the tune... file
 sim_pms:
-    stop_ms: 45000.0
+    stop_ms: 8500.0
     resolution_ms: 0.1
 recording_pms:
-    start_ms: 1000.0
-    stop_ms: 45000.0
-# possible target_exc_pop: for all actions on synaptic connections:
-# single pop, use int value, e.g. target_exc_pop: 2
-# list of pops, e.g use target_exc_pop:[0,2,3]  
-# possible strings identifying set of pops: 
-# target_exc_pop: 'all_intra_exc'
-# target_exc_pop: 'all_inter_exc'
-# target_exc_pop: all_intra_inter_exc'
+    start_ms: 000.0
+    stop_ms:  8500.0
 events_pms:
-  - action:
+  - action: 
       kind: 'store_syn'
       syn_file_name: 'syn_matrix-initial'
-    sim_period_ms: 10000.0
-    #10000 total
-#switch on plasticity on pop 0 and recording syn evolution
+  - action:
+      kind: 'disconnect_exc_pop_syn'
+      target_exc_pop: 1
+    sim_period_ms: 3000.0
+  - action:
+      kind: 'disconnect_exc_pop_syn'
+      target_exc_pop: 0
+    sim_period_ms: 2000.0
+  - action: 
+      kind: 'store_syn'
+      syn_file_name: 'syn_matrix-after_first_disconnection'
   - action:
       kind: 'exc_plasticity_ON'
       target_exc_pop: 0
       W_max_factor: 2.0
-    sim_period_ms: 500.0
-    #10500 total
   - action:
-      kind: 'store_syn'
-      syn_file_name: 'syn_matrix-after_learning-0-10500ms'
-    sim_period_ms: 500.0
-    #11000 total
+      kind: 'set_learning'
+      target_exc_pop: 0
+      lambda: 0.1
+      alpha: 1.0
+    sim_period_ms: 100.0
   - action:
-      kind: 'store_syn'
-      syn_file_name: 'syn_matrix-after_learning-0-11000ms'
-    sim_period_ms: 1000.0 
-    #12000 total
-  - action:
-      kind: 'store_syn'
-      syn_file_name: 'syn_matrix-after_learning-0-12000ms'
-#switch on plasticity on pop 1 and recording syn evolution
-  - action:
+      syn_file_name_before: 'syn_matrix-after_learning_pop0'
       kind: 'exc_plasticity_ON'
       target_exc_pop: 1
       W_max_factor: 2.0
-    sim_period_ms: 500.0
-    #12500 total
   - action:
-      kind: 'store_syn'
-      syn_file_name: 'syn_matrix-after_learning-1-12500ms'
-    sim_period_ms: 500.0
-    #13000 total
-  - action:
-      kind: 'store_syn'
-      syn_file_name: 'syn_matrix-after_learning-1-13000ms'
-    sim_period_ms: 1000.0
-    #14000 total
-  - action:
-      kind: 'disconnect_exc_pop_syn'
-      target_exc_pop: 0
-  - action:
-      kind: 'disconnect_exc_pop_syn'
+      kind: 'set_learning'
       target_exc_pop: 1
+      lambda: 0.1
+      alpha: 1.0
+    sim_period_ms: 100.0
+  - action:
+      kind: 'set_learning'
+      target_exc_pop: 1
+      lambda: 0.0
+      alpha: 1.0
   - action:
       kind: 'store_syn'
-      syn_file_name: 'syn_matrix-after_learning-1-14000ms'
-    sim_period_ms: 16000.0
-    #30000 total
+      syn_file_name: 'syn_matrix-after_learning_pop1'
+    sim_period_ms: 35000.0
   - action:
       kind: 'store_syn'
-      syn_file_name: 'syn_matrix-at-30000ms'
-    sim_period_ms: 14000.0
-    #44000 total
-  - action:
-      kind: 'store_syn'
-      syn_file_name: 'syn_matrix-at-44000ms'
-    sim_period_ms: 1000.0
-    #45000 total
+      syn_file_name: 'syn_matrix-final'

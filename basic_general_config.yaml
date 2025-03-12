@@ -83,7 +83,7 @@ contextual_poisson:
       target_population: 0
 poisson:
   awake:
-    poisson_basic_rate: 480.0
+    poisson_basic_rate: 600     #480.0
     poisson_delta: 0.0
     poisson_noise_spreading_factor: 4.0
     poisson_weight: 0.6
@@ -99,13 +99,13 @@ weights:
     inh_to_exc_weight: -0.85
     exc_to_inh_weight: 7.0
     inh_to_inh_weight: -1.0 
-    inter_pop_weight: 0.01
+    inter_pop_weight: 0.0           #0.01
   NREM:
     recurrent_weight: 19.0
     inh_to_exc_weight: -1.7
     exc_to_inh_weight: 7.0 
     inh_to_inh_weight: -1.0
-    inter_pop_weight: 0.02
+    inter_pop_weight: 0.0           #0.02
 
 
 dc_exc:

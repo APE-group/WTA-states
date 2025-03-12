@@ -16,9 +16,9 @@ equation_params:
     g_C_d: 17.55192973190035
     g_L_d: 2.5088334130360064
     g_L_s: 6.666182946322264
+    g_w: 1.
     gbar_Ca: 22.9883727668534
     gbar_K_Ca: 18.36101756561857
-    gbar_Na_Adex: 19.71852736081414
     h_half: -21.0
     h_slope: -0.5
     m_half: -9.0
@@ -36,6 +36,7 @@ equation_params:
     tau_w: 500.0
     a: 0
     b: 40.0
+    #b: 72.4
     #the following must be aligned with V_peak of AdEx
     V_th: -40.0
 NREM_changers:
