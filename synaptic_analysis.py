@@ -83,7 +83,6 @@ def syn_analysis(list_of_syn_matrix_file_names):
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
-    plt.show()
 
 # Example usage
 # syn_analysis(["syn_matrix_100ms.pkl", "syn_matrix_200ms.pkl", "syn_matrix_300ms.pkl"])

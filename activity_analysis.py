@@ -268,7 +268,6 @@ def produce_rastegrams_rates_spectra_spectrograms(
             time_points, smoothed_spikes_firing_rate, verbose)
     else:
         print("Skipping tissue response analysis due to previous issues.")
-    plt.show()
     return
 
 
