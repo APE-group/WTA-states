@@ -1,0 +1,55 @@
+#PLEASE modify the tune... file
+sim_pms:
+    stop_ms: 8500.0
+    resolution_ms: 0.1
+recording_pms:
+    start_ms: 000.0
+    stop_ms:  8500.0
+events_pms:
+  - action: 
+      kind: 'store_syn'
+      syn_file_name: 'syn_matrix-initial'
+  - action:
+      kind: 'disconnect_exc_pop_syn'
+      target_exc_pop: 1
+    sim_period_ms: 3000.0
+  - action:
+      kind: 'disconnect_exc_pop_syn'
+      target_exc_pop: 0
+    sim_period_ms: 2000.0
+  - action: 
+      kind: 'store_syn'
+      syn_file_name: 'syn_matrix-after_first_disconnection'
+  - action:
+      kind: 'exc_plasticity_ON'
+      target_exc_pop: 0
+      W_max_factor: 2.0
+  - action:
+      kind: 'set_learning'
+      target_exc_pop: 0
+      lambda: 0.1
+      alpha: 1.0
+    sim_period_ms: 100.0
+  - action:
+      syn_file_name_before: 'syn_matrix-after_learning_pop0'
+      kind: 'exc_plasticity_ON'
+      target_exc_pop: 1
+      W_max_factor: 2.0
+  - action:
+      kind: 'set_learning'
+      target_exc_pop: 1
+      lambda: 0.1
+      alpha: 1.0
+    sim_period_ms: 100.0
+  - action:
+      kind: 'set_learning'
+      target_exc_pop: 1
+      lambda: 0.0
+      alpha: 1.0
+  - action:
+      kind: 'store_syn'
+      syn_file_name: 'syn_matrix-after_learning_pop1'
+    sim_period_ms: 35000.0
+  - action:
+      kind: 'store_syn'
+      syn_file_name: 'syn_matrix-final'
