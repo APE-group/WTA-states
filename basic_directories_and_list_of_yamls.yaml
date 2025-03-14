@@ -3,14 +3,7 @@
 relative_output_dir: 'overwrite_dir'
 
 #otherwise select an interesting dir name like:
-#relative_output_dir: '2024-0820-static_syn_awake'
-#relative_output_dir: '2024-0820-static_syn_awake'
-#relative_output_dir: '2024-0919-std-AdEx-10HzTraining'
-#relative_output_dir: '2024-0919-Ca-AdEx-10HzTraining'
-#relative_output_dir: '2024-0920-std-AdEx-Train2-0s'
-#relative_output_dir: '2024-0920-Ca-AdEx-Train_50ms'
-#relative_output_dir: '2024-0920-Ca-AdEx-Train_25ms_4000c'
-#relative_output_dir: '2025-0311a-Ca-AdEx-Train_25ms_4000c'
+#relative_output_dir: '202x-mmdd-YourSimulationName'
 
 #please do not modify the following list
 #it is not used everywhere. Work in progress
