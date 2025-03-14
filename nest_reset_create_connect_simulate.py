@@ -100,7 +100,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
     exc_to_inh_weight = nest_pms["network"]["weights"]["exc_to_inh_weight"] 
     inh_to_inh_weight = nest_pms["network"]["weights"]["inh_to_inh_weight"]
 
-    
+     
     exc_to_exc_delay_ms = min_syn_delay_ms + 1.
     inh_to_inh_delay_ms = min_syn_delay_ms + exc_t_ref_ms + 1.0
     assert(conn_rule == 'pairwise_bernoulli')
@@ -147,16 +147,16 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
     
     # Connect inhibitory neurons to all excitatory neurons and vice versa
     #before 2024-1006 (QUESTA NON ROMPE IL KERNEL)
-    #inh_to_exc_delay_ms = min_syn_delay_ms + exc_t_ref_ms + 0.55
-    #exc_to_inh_delay_ms = min_syn_delay_ms + 0.5
+    inh_to_exc_delay_ms = min_syn_delay_ms + exc_t_ref_ms + 0.55
+    exc_to_inh_delay_ms = min_syn_delay_ms + 0.5
 
     #IN PROVA QUESTA DOPO FUNZIONA ANCORA
     #inh_to_exc_delay_ms = min_syn_delay_ms + 0.55
     #exc_to_inh_delay_ms = min_syn_delay_ms + 0.5 
 
     #IN PROVA 
-    inh_to_exc_delay_ms = min_syn_delay_ms + 0.1
-    exc_to_inh_delay_ms = min_syn_delay_ms + 0.1   
+    #inh_to_exc_delay_ms = min_syn_delay_ms + 0.1
+    #exc_to_inh_delay_ms = min_syn_delay_ms + 0.1   
     
     #QUESTA CONFIGURAZIONE FA CRASHARE IL KERNEL
     #inh_to_exc_delay_ms = min_syn_delay_ms 
