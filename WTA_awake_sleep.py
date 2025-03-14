@@ -28,6 +28,10 @@ def WTA_awake_sleep():
     #read general network parameters
     config = read_general_config_yaml(is_verbose)
 
+    # copy neural params files in specified output directory
+    output_dir_name = directories_and_list_of_yamls['relative_output_dir']
+    copy_neu_params_yamls_in_output_dir(output_dir_name, config, is_verbose)
+
     #prepare all simulation parameters
     nest_pms={}
     nest_pms = nest_parameters_preparation(times, config, is_verbose, nest_pms)
