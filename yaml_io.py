@@ -130,39 +130,24 @@ def read_basic_directories_and_list_of_yamls(verbose):
         directories_and_list_of_yamls = yaml.safe_load(file)
     return directories_and_list_of_yamls
 
-def copy_yamls_in_output_dir(directories_and_list_of_yamls,verbose):
-    # Define the directory and file paths
-    current_dir_name = os.getcwd() 
-    relative_output_dir_name=\
-      directories_and_list_of_yamls['relative_output_dir']
-    
-    if verbose:
-        print("in copy_yamls_in_output_directory: current execution directory:", current_dir_name)
-        print("in copy_yamls_in_output_directory: relative_output_dir:", relative_output_dir_name)
-    output_dir_name = current_dir_name + "/" + relative_output_dir_name
-    if verbose:
-        print("in copy_yamls_in_output_directory: output dir:", output_dir_name)    
-  
-    # Check if the directory exists
-    if not os.path.exists(output_dir_name):
-        os.makedirs(output_dir_name)
-        print(f"Directory '{output_dir_name}' created.")
-    else:
-        if relative_output_dir_name != 'overwrite_dir':
-            response = input(f"Directory '{output_dir_name}' already exists. Do you want to continue? (y/n): ")
-            if response.lower() != 'y':
-                print("Operation aborted.")
-                exit()
-    file_names = directories_and_list_of_yamls['config_yaml_files']
-    # Copy the files to the directory
-    for file_name in file_names: 
-        input_file_name = current_dir_name + "/" + file_name
-        destination_file_name = output_dir_name + "/" + file_name
-        shutil.copy(input_file_name, destination_file_name)
-        if verbose:
-            print(f"File '{input_file_name}' copied to '{destination_file_name}'.")
+def clean_directory(dir_path):
+    """
+    Removes all files and subdirectories inside the given directory.
 
-    return output_dir_name
+    dir_path: The path to the directory you want to clean.
+    """
+    # List everything in the directory
+    for item in os.listdir(dir_path):
+        item_path = os.path.join(dir_path, item)
+        
+        # Check whether it's a file, symlink, or directory
+        if os.path.isfile(item_path) or os.path.islink(item_path):
+            os.remove(item_path)   # remove file or symlink
+        elif os.path.isdir(item_path):
+            shutil.rmtree(item_path)  # remove entire directory tree
+
+# Example usage:
+# clean_directory("/path/to/your/directory")
 
 def copy_yamls_in_output_dir(directories_and_list_of_yamls,verbose):
     # Define the directory and file paths
@@ -187,8 +172,10 @@ def copy_yamls_in_output_dir(directories_and_list_of_yamls,verbose):
             if response.lower() != 'y':
                 print("Operation aborted.")
                 exit()
+    clean_directory(output_dir_name)
     file_names = directories_and_list_of_yamls['config_yaml_files']
     # Copy the files to the directory
+    
     for file_name in file_names: 
         input_file_name = current_dir_name + "/" + file_name
         destination_file_name = output_dir_name + "/" + file_name
@@ -197,6 +184,7 @@ def copy_yamls_in_output_dir(directories_and_list_of_yamls,verbose):
             print(f"File '{input_file_name}' copied to '{destination_file_name}'.")
 
     return output_dir_name
+
 
 def copy_neu_params_yamls_in_output_dir(output_dir_name, config, verbose):
     assert(os.path.exists(output_dir_name))
