@@ -104,8 +104,8 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
     exc_to_exc_delay_ms = min_syn_delay_ms + 1.
     inh_to_inh_delay_ms = min_syn_delay_ms + exc_t_ref_ms + 1.0
     assert(conn_rule == 'pairwise_bernoulli')
-    conn_spec_dict_exc = {"rule": conn_rule, "p": p_conn_exc, "allow_autapses": False}
-    conn_spec_dict_inh = {"rule": conn_rule, "p": p_conn_inh, "allow_autapses": False}
+    conn_spec_dict_exc = {"rule": conn_rule, "p": p_conn_exc}
+    conn_spec_dict_inh = {"rule": conn_rule, "p": p_conn_inh}
 
     #set to false the book-keeping of intra-pop and inter pop syn types
     present_exc_conn={}
