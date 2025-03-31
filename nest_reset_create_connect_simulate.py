@@ -149,14 +149,9 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
                     present_exc_conn[i][j]['synapse_model'] = static_synapse_i_j
 
     #inh to inh connections: initial setup
-    # nest.CopyModel('static_synapse','static_synapse_inh_inh')
-    # nest.Connect(inh_neurons, inh_neurons, conn_spec_dict_inh,\
-    #             syn_spec={"synapse_model": 'static_synapse_inh_inh', "weight": inh_to_inh_weight, "delay": inh_to_inh_delay_ms})
-    nest.Connect(inh_neurons, inh_neurons, conn_spec='all_to_all', syn_spec={"synapse_model": 'static_synapse'})
-    existing_conns = nest.GetConnections(inh_neurons, inh_neurons,
-                            synapse_model='static_synapse')
-    breakpoint()
-    nest.Disconnect(inh_neurons, inh_neurons)
+    nest.CopyModel('static_synapse','static_synapse_inh_inh')
+    nest.Connect(inh_neurons, inh_neurons, conn_spec_dict_inh,\
+                syn_spec={"synapse_model": 'static_synapse_inh_inh', "weight": inh_to_inh_weight, "delay": inh_to_inh_delay_ms})
 
     # Connect inhibitory neurons to all excitatory neurons and vice versa
     #before 2024-1006 (QUESTA NON ROMPE IL KERNEL)
