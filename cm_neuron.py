@@ -17,9 +17,30 @@ import random
 import statistics as stat
 import sys
 import yaml
+from dataclasses import dataclass
 
 
 #sleep = True
+
+@dataclass
+class ReceptorIdxs:
+    GABA_soma: int = 0
+    AMPA_soma: int = 1
+    GABA_dist: int = 2
+    AMPA_dist: int = 3
+    REFRACT_soma: int = 4
+    ADAPT_soma: int = 5
+    BETA_dist: int = 6
+    NMDA_soma: int = 7
+    AMPA_NMDA_soma: int = 8
+    ALPHAexc_soma: int = 9
+    ALPHAinh_soma: int = 10
+    ALPHAexc_dist: int = 11
+    ALPHAinh_dist: int = 12
+    NMDA_dist: int = 13
+    AMPA_NMDA_dist: int = 14
+    I_soma: int = 15
+
 
 
 def init_Ca_AdEx(default_params):
@@ -81,7 +102,7 @@ def init_Ca_AdEx_nestml(default_params):
         'refr_period': default_params['t_ref'],
         'v_reset': default_params['V_reset'],
         'tau_w': default_params['tau_w'],
-        'a': default_params['a'],
+        'sth_a': default_params['a'],
         'b': default_params['b'],
         'e_adapt': default_params['e_L_s'],
         'g_adapt': default_params['g_w'],
@@ -113,12 +134,60 @@ def init_Ca_AdEx_nestml(default_params):
         
     return(soma_params, distal_params, other_params)
 
+def create_receptor_mapping(multi_comp=True):        
+    if multi_comp:        
+        # receptor mapping
+        ri = ReceptorIdxs(
+            # receptors get assigned an index which corresponds to the order in which they
+            # are added. For clearer bookkeeping, we explicitly define these indices here.
+            ALPHAexc_soma=0, 
+            ALPHAinh_soma=1, 
+            ALPHAexc_dist=2, 
+            ALPHAinh_dist=3, 
+            AMPA_NMDA_dist=4, 
+            I_soma=5,
+            # other receptors types are not used, assign something that will generate an error when used
+            GABA_soma=float('nan'), 
+            AMPA_soma=float('nan'), 
+            GABA_dist=float('nan'), 
+            AMPA_dist=float('nan'), 
+            REFRACT_soma=float('nan'), 
+            ADAPT_soma=float('nan'), 
+            BETA_dist=float('nan'), 
+            NMDA_soma=float('nan'), 
+            AMPA_NMDA_soma=float('nan'), 
+            NMDA_dist=float('nan'), 
+        )
+    else:
+        # receptor mapping
+        ri = ReceptorIdxs(
+            # receptors get assigned an index which corresponds to the order in which they
+            # are added. For clearer bookkeeping, we explicitly define these indices here.
+            ALPHAexc_soma=0, 
+            ALPHAinh_soma=1, 
+            AMPA_NMDA_soma=2, 
+            I_soma=3,
+            # other receptors types are not used, assign something that will generate an error when used
+            GABA_soma=float('nan'), 
+            AMPA_soma=float('nan'), 
+            GABA_dist=float('nan'), 
+            AMPA_dist=float('nan'), 
+            REFRACT_soma=float('nan'), 
+            ADAPT_soma=float('nan'), 
+            BETA_dist=float('nan'), 
+            NMDA_soma=float('nan'), 
+            ALPHAexc_dist=float('nan'), 
+            ALPHAinh_dist=float('nan'), 
+            AMPA_NMDA_dist=float('nan'), 
+            NMDA_dist=float('nan'), 
+        )
+    return ri
+
 
 def create_nestml_neuron(n = 1, params = {}, multi_comp = True):
-    soma_params, distal_params, other_params = init_Ca_AdEx(params)
-    nest.Install("ca_adex_stdp_module")
+    soma_params, distal_params, other_params = init_Ca_AdEx_nestml(params)
     # initialize the model with two compartments
-    cm = nest.Create("ca_adex_nestml")
+    cm = nest.Create("ca_adex_2expsyn_nestml")
     cm.V_th = other_params['V_th']
 
     if multi_comp:
@@ -133,16 +202,32 @@ def create_nestml_neuron(n = 1, params = {}, multi_comp = True):
             {"comp_idx": 1, "receptor_type": "syn_2exp", "params": {"tau_r_syn": .173, "tau_d_syn": .227, "e_syn": 0.}}, # ALPHAexc_dist
             {"comp_idx": 1, "receptor_type": "syn_2exp", "params": {"tau_r_syn": 1.73, "tau_d_syn": 2.27, "e_syn": -85.}}, # ALPHAinh_dist
             {"comp_idx": 1, "receptor_type": "ampa_nmda"}, # AMPA_NMDA_dist
+            {"comp_idx": 0, "receptor_type": "inp"}, # I_SOMA
         ]
         cm.receptors = receptors
+        # receptor mapping
+        ri = ReceptorIdxs(
+            # receptors get assigned an index which corresponds to the order in which they
+            # are added. For clearer bookkeeping, we explicitly define these indices here.
+            ALPHAexc_soma=0, 
+            ALPHAinh_soma=1, 
+            ALPHAexc_dist=2, 
+            ALPHAinh_dist=3, 
+            AMPA_NMDA_dist=4, 
+            I_soma=5,
+            # other receptors types are not used, assign something that will generate an error when used
+            GABA_soma=float('nan'), 
+            AMPA_soma=float('nan'), 
+            GABA_dist=float('nan'), 
+            AMPA_dist=float('nan'), 
+            REFRACT_soma=float('nan'), 
+            ADAPT_soma=float('nan'), 
+            BETA_dist=float('nan'), 
+            NMDA_soma=float('nan'), 
+            AMPA_NMDA_soma=float('nan'), 
+            NMDA_dist=float('nan'), 
+        )
 
-        # receptors get assigned an index which corresponds to the order in which they
-        # are added. For clearer bookkeeping, we explicitly define these indices here.
-        ALPHAexc_soma, ALPHAinh_soma, ALPHAexc_dist, ALPHAinh_dist, AMPA_NMDA_dist = 0, 1, 2, 3, 4
-        # other receptors types are not used, assign something that will generate an error when used
-        GABA_soma, AMPA_soma, GABA_dist, AMPA_dist, REFRACT_soma, ADAPT_soma, BETA_dist, NMDA_soma, AMPA_NMDA_soma, NMDA_dist, = \
-            float('nan'), float('nan'), float('nan'), float('nan'), float('nan'), float('nan'), float('nan'), float('nan'), float('nan'), float('nan')
-        
     else:
         cm.compartments =[
             {"parent_idx": -1, "params": soma_params},
@@ -152,16 +237,9 @@ def create_nestml_neuron(n = 1, params = {}, multi_comp = True):
             {"comp_idx": 0, "receptor_type": "syn_2exp", "params": {"tau_r_syn": .173, "tau_d_syn": .227, "e_syn": 0.}}, # ALPHAexc_soma
             {"comp_idx": 0, "receptor_type": "syn_2exp", "params": {"tau_r_syn": 1.73, "tau_d_syn": 2.27, "e_syn": -85.}}, # ALPHAinh_soma
             {"comp_idx": 0, "receptor_type": "ampa_nmda"}, # AMPA_NMDA_soma
+            {"comp_idx": 0, "receptor_type": "inp"}, # I_SOMA
         ]
         cm.receptors = receptors
-
-        # receptors get assigned an index which corresponds to the order in which they
-        # are added. For clearer bookkeeping, we explicitly define these indices here.
-        ALPHAexc_soma, ALPHAinh_soma, AMPA_NMDA_soma = 0, 1, 2,
-        # other receptors types are not used, assign something that will generate an error when used
-        GABA_soma, AMPA_soma, GABA_dist, AMPA_dist, REFRACT_soma, ADAPT_soma, BETA_dist, NMDA_soma, ALPHAexc_dist, ALPHAinh_dist, AMPA_NMDA_dist, NMDA_dist, = \
-            float('nan'), float('nan'), float('nan'), float('nan'), float('nan'), float('nan'), float('nan'), float('nan'), float('nan'), float('nan'), float('nan'), float('nan')
-        
 
     return cm
 
