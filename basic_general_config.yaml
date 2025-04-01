@@ -1,7 +1,7 @@
 #state can be either "awake" or "NREM"
 #brain_state: "NREM"
 brain_state: "awake"
-use_single_compartment_environment: True
+use_single_compartment_environment: False
 #exc_neu_params_filename: "Ca-AdEx_neural_params.yaml"
 inh_neu_params_filename: "standard_AdEx_inh_neural_params.yaml"
 exc_neu_params_filename: "standard_AdEx_exc_neural_params.yaml" 
@@ -9,7 +9,7 @@ exc_neu_params_filename: "standard_AdEx_exc_neural_params.yaml"
 cf: 1.0
 
 network:
-  num_exc_neu_per_pop: 20
+  num_exc_neu_per_pop: 25
   num_exc_pop: 4
   conn_rule: "pairwise_bernoulli"
   p_conn_exc: 1.0

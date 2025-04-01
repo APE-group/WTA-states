@@ -64,7 +64,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
         num_inh_neu,
         params=inh_neu_params,
     )
-
+    print("segf debug (i)")
     # Spike recorders for excitatory and inhibitory populations
     recording_pms=nest_pms["recording_pms"]
     spike_recorders = [nest.Create("spike_recorder",
@@ -78,7 +78,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
         nest.Connect(neurons[i], spike_recorders[i])
     nest.Connect(inh_neurons, inh_spike_recorder)
 
-
+    print("segf debug (ii)")
     # 2024-1002
     # Added multimeter on Ca-AdEx only (temporary solution)
     # Target pop and neu and all the parameters to be specified in a yaml
@@ -98,6 +98,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
     nest.Connect(multimeter, neurons[pop][neu])
 
 
+    print("segf debug (iii)")
     # Connection specifications
     exc_t_ref_ms=nest_pms["exc_t_ref_ms"]
     min_syn_delay_ms=nest_pms["network"]["min_syn_delay_ms"]
@@ -122,7 +123,6 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
             present_exc_conn[i][j] = {'synapse_model': False}
         
     #set initial intra-pop connections 
-    breakpoint()   
     for i in range(num_exc_pop):
         static_synapse_i_i='static_synapse_'+str(i)+'_'+str(i)
         nest.CopyModel('static_synapse',static_synapse_i_i)
@@ -132,6 +132,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
         nest.Connect(neurons[i], neurons[i], conn_spec_dict_exc, syn_spec)
         present_exc_conn[i][i] = {'synapse_model': static_synapse_i_i} 
 
+    print("segf debug (iv)")
     #inter assemblies connections: initial set-up
     if nest_pms["network"]["inter_pop_conn"] == True:
 
@@ -147,12 +148,15 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
                     #     syn_spec.update({'receptor_type': ALPHAexc_soma})
                     nest.Connect(neurons[i], neurons[j], conn_spec_dict_exc, syn_spec)
                     present_exc_conn[i][j]['synapse_model'] = static_synapse_i_j
+                    breakpoint()
 
     #inh to inh connections: initial setup
     nest.CopyModel('static_synapse','static_synapse_inh_inh')
     nest.Connect(inh_neurons, inh_neurons, conn_spec_dict_inh,\
                 syn_spec={"synapse_model": 'static_synapse_inh_inh', "weight": inh_to_inh_weight, "delay": inh_to_inh_delay_ms})
 
+
+    print("segf debug (v)")
     # Connect inhibitory neurons to all excitatory neurons and vice versa
     #before 2024-1006 (QUESTA NON ROMPE IL KERNEL)
     inh_to_exc_delay_ms = min_syn_delay_ms + exc_t_ref_ms + 0.55
@@ -186,6 +190,8 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
         syn_spec={"synapse_model": new_syn_model_exc_n_inh, "weight": exc_to_inh_weight, "delay": exc_to_inh_delay_ms}
         nest.Connect(neurons[i], inh_neurons, conn_spec_dict_exc, syn_spec)      
 
+
+    print("segf debug (vi)")
     # Create and connect Poisson generators if enabled
     use_poisson_generators=nest_pms["network"]["use_poisson_generators"]
     if use_poisson_generators:
@@ -200,6 +206,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
             # else:
             nest.Connect(pgs, neurons[i], syn_spec={"weight": poisson_weight, "delay": 1.0, 'receptor_type': ri.ALPHAexc_soma})
 
+    print("segf debug (vii)")
     # Add contextual poisson signal if configured
     if 'contextual_poisson' in nest_pms and \
             nest_pms['brain_state'] in nest_pms['contextual_poisson']: 
@@ -237,6 +244,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
                     nest.Connect(contextual_poisson_gen, neurons[target_pop], syn_spec=syn_spec)
 
 
+    print("segf debug (viii)")
     # DC current injection for all neurons if enabled
     use_dc_exc_injectors=nest_pms["use_dc_exc_injectors"]
     if use_dc_exc_injectors:
@@ -271,6 +279,8 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
         nest.Connect(dc_inh_generator, inh_neurons,\
                      syn_spec={'weight': dc_inh_weight, 'delay': dc_inh_delay_ms})
 
+
+    print("segf debug (ix)")
     def make_plastic_conn(source_exc_pop, target_exc_pop, Wmax, verbose):
         if verbose:
             print("in make_plastic_conn: source and target pops", source_exc_pop, target_exc_pop)
@@ -353,10 +363,11 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
             print("in perform_event_action: requested action:", requested_action, "at time (ms)", tot_simulated_time_ms) 
         if requested_action['kind']=='store_syn':
             #STORE SYN MATRIX
+            print("segf debug (a)")
             store_syn(requested_action['syn_file_name'], tot_simulated_time_ms, verbose)
         elif requested_action['kind']=='disconnect_exc_pop_syn':
             #DISCONNECT (several options to select target intra and inter pops)
-
+            print("segf debug (b)")
             #can be an integer, a list of integers, or a string    
             target_exc_pop = requested_action['target_exc_pop']     
             if isinstance(target_exc_pop, int):
@@ -395,7 +406,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
 
         elif requested_action['kind']=='exc_plasticity_ON':
             #make PLASTIC exc synapses (several options to select target intra and inter pops)
-                
+            print("segf debug (c)")
             Wmax = recurrent_weight * requested_action['W_max_factor']                                       
 
             #can be an integer, a list of integers, or a string    
@@ -435,6 +446,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
                 # Handle unexpected types
                 raise TypeError(f"Invalid type for 'target_exc_pop': {type(target_exc_pop)}")
         elif requested_action['kind']=='set_learning':
+            print("segf debug (d)")
             # Set learning rate
             learning_rate = default_plasticity['lambda']
             alpha = default_plasticity['alpha']
@@ -445,11 +457,14 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
             target_exc_pop = requested_action['target_exc_pop']
             assert(target_exc_pop >= 0 and target_exc_pop < num_exc_pop)
             # add check if target_exc_pop is in the list of plastic populations (issue #34)
+            # the "stdp_synapse" is not used as a model in the connection, since it's renamed with nest.CopyModel()
             existing_conns_plastic = nest.GetConnections(neurons[target_exc_pop],
                                                neurons[target_exc_pop], synapse_model='stdp_synapse')
+            print("connections to be changed:", existing_conns_plastic)
             nest.SetStatus(existing_conns_plastic, {'lambda': learning_rate, 'alpha': alpha})
             print('Set lambda =', learning_rate, 'alpha =', alpha, 'in population', target_exc_pop)     
         else:
+            print("segf debug (e)")
             #UNRECOGNIZED
             print("in perform_event_action: requested action:",requested_action['kind'],"NOT SUPPORTED")
             assert False
@@ -489,6 +504,9 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
                         print("expected NEXT SIM PERIOD ms",item['sim_period_ms'])
             print("in nest_..._simulate: JUST BEFORE ACTUAL EXECUTION")
     
+        print("segf debug (x)")
+        segf_debug_counter = 0
+
         tot_simulated_time_ms=0.0
         if 'events_pms' in nest_pms:
             for item in nest_pms['events_pms']:
@@ -511,18 +529,23 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
                         print("launching next period of ", next_sim_period_ms, "ms of simulation")
                 #launching simulation period
                 if next_sim_period_ms > 0:
+                    print(f"segf debug | sim 1 | counter: {segf_debug_counter}")
                     nest.Simulate(next_sim_period_ms)
+                    segf_debug_counter += 1
                     tot_simulated_time_ms += next_sim_period_ms
                     if verbose:
                         print("performed until now:",tot_simulated_time_ms, "TOTAL ms of simulation")
 
+        print("segf debug (xi)")
         if tot_simulated_time_ms < sim_pms["stop_ms"]:
             next_sim_period_ms = sim_pms["stop_ms"] - tot_simulated_time_ms
             if verbose:
                 print("ADDING ", next_sim_period_ms, "ms sim to complete expected" ,sim_pms["stop_ms"], "TOTAL ms of simulation")
             #possible last simulation period
             assert(next_sim_period_ms>0)
+            print(f"segf debug | sim 2 | counter: {segf_debug_counter}")
             nest.Simulate(next_sim_period_ms)
+            segf_debug_counter += 1
             tot_simulated_time_ms += next_sim_period_ms
             store_syn('syn_matrix-end_of_sim', tot_simulated_time_ms, verbose) 
             if verbose:

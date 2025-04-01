@@ -187,7 +187,7 @@ def create_receptor_mapping(multi_comp=True):
 def create_nestml_neuron(n = 1, params = {}, multi_comp = True):
     soma_params, distal_params, other_params = init_Ca_AdEx_nestml(params)
     # initialize the model with two compartments
-    cm = nest.Create("ca_adex_2expsyn_nestml")
+    cm = nest.Create("ca_adex_2expsyn_nestml", n)
     cm.V_th = other_params['V_th']
 
     if multi_comp:
@@ -205,28 +205,6 @@ def create_nestml_neuron(n = 1, params = {}, multi_comp = True):
             {"comp_idx": 0, "receptor_type": "inp"}, # I_SOMA
         ]
         cm.receptors = receptors
-        # receptor mapping
-        ri = ReceptorIdxs(
-            # receptors get assigned an index which corresponds to the order in which they
-            # are added. For clearer bookkeeping, we explicitly define these indices here.
-            ALPHAexc_soma=0, 
-            ALPHAinh_soma=1, 
-            ALPHAexc_dist=2, 
-            ALPHAinh_dist=3, 
-            AMPA_NMDA_dist=4, 
-            I_soma=5,
-            # other receptors types are not used, assign something that will generate an error when used
-            GABA_soma=float('nan'), 
-            AMPA_soma=float('nan'), 
-            GABA_dist=float('nan'), 
-            AMPA_dist=float('nan'), 
-            REFRACT_soma=float('nan'), 
-            ADAPT_soma=float('nan'), 
-            BETA_dist=float('nan'), 
-            NMDA_soma=float('nan'), 
-            AMPA_NMDA_soma=float('nan'), 
-            NMDA_dist=float('nan'), 
-        )
 
     else:
         cm.compartments =[
