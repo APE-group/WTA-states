@@ -1,6 +1,7 @@
 #state can be either "awake" or "NREM"
 #brain_state: "NREM"
 brain_state: "awake"
+use_nestml: False
 use_single_compartment_environment: True
 #exc_neu_params_filename: "Ca-AdEx_neural_params.yaml"
 inh_neu_params_filename: "standard_AdEx_inh_neural_params.yaml"

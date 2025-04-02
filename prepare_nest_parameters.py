@@ -8,6 +8,7 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
     
     # Extract config subsets of params 
     brain_state = config['brain_state']
+    use_nestml = config['use_nestml']
     use_single_compartment_environment = config['use_single_compartment_environment']
     exc_pms_file_name = config['exc_neu_params_filename']
     inh_pms_file_name = config['inh_neu_params_filename']
@@ -211,6 +212,7 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
         nest_pms['contextual_poisson'] = config['contextual_poisson']
     nest_pms["brain_state"]= brain_state
     nest_pms["sim_pms"]=times["sim_pms"]
+    nest_pms["use_nestml"]= use_nestml
     nest_pms["use_single_compartment_environment"]= use_single_compartment_environment
     nest_pms["exc_neu_params"]=exc_neu_params
     nest_pms["inh_neu_params"]=inh_neu_params
