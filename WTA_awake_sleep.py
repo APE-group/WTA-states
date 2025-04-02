@@ -15,7 +15,7 @@ from synaptic_analysis import *
 
 def WTA_awake_sleep():
 
-    is_verbose = False
+    is_verbose = True
     #copy configuration yamls in specified output directory
     directories_and_list_of_yamls =\
         read_basic_directories_and_list_of_yamls(is_verbose)
@@ -72,7 +72,7 @@ def WTA_awake_sleep():
     for file_name in list_of_syn_matrix_file_names:
         array_of_dicts=load_syn(file_name, verbose) 
 
-        syn_analysis(list_of_syn_matrix_file_names)
+    syn_analysis(list_of_syn_matrix_file_names)
 
     return
 
