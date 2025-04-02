@@ -4,15 +4,15 @@ brain_state: "awake"
 use_single_compartment_environment: False
 exc_neu_params_filename: "Ca-AdEx_neural_params.yaml"
 inh_neu_params_filename: "standard_AdEx_inh_neural_params.yaml"
-#exc_neu_params_filename: "standard_AdEx_exc_neural_params.yaml" 
+# exc_neu_params_filename: "standard_AdEx_exc_neural_params.yaml" 
 #exc_neu_params_filename: "MC-g0_like-exc_neural_params.yaml"
 
 network:
   use_exc_recurrency: True
   num_exc_pop: 4  # Number of excitatory populations 
-  #num_exc_neu_per_pop: 20  # Number of excitatory AdEx neurons per pop
+  num_exc_neu_per_pop: 20  # Number of excitatory AdEx neurons per pop
   #use_poisson_generators: true
-  #num_poisson_generators: 20
+  num_poisson_generators: 20
 
 #conversion factor for synaptic conductances
 cf: 1.0

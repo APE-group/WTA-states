@@ -9,6 +9,7 @@ def nest_parameters_preparation(times, config, is_verbose, nest_pms):
     # Extract config subsets of params 
     brain_state = config['brain_state']
     use_single_compartment_environment = config['use_single_compartment_environment']
+    print("!!!", config['use_single_compartment_environment'])
     exc_pms_file_name = config['exc_neu_params_filename']
     inh_pms_file_name = config['inh_neu_params_filename']
     network = config['network']

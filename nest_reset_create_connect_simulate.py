@@ -51,6 +51,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
         # neurons = [
         #     create_cm_neuron(num_exc_neu_per_pop, params=exc_neu_params['equation_params']) for _ in range(num_exc_pop)
         # ]
+    print(f">>> use_single_compartment_environment = {use_single_compartment_environment}")
     neurons = [
         create_nestml_neuron(num_exc_neu_per_pop, params=exc_neu_params['equation_params'], multi_comp=not(use_single_compartment_environment)) for _ in range(num_exc_pop)
     ]
@@ -148,7 +149,6 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
                     #     syn_spec.update({'receptor_type': ALPHAexc_soma})
                     nest.Connect(neurons[i], neurons[j], conn_spec_dict_exc, syn_spec)
                     present_exc_conn[i][j]['synapse_model'] = static_synapse_i_j
-                    breakpoint()
 
     #inh to inh connections: initial setup
     nest.CopyModel('static_synapse','static_synapse_inh_inh')

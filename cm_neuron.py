@@ -89,46 +89,65 @@ def init_Ca_AdEx(default_params):
     return(soma_params, distal_params, other_params)
 
 
-def init_Ca_AdEx_nestml(default_params):
+def init_Ca_AdEx_nestml(default_params, multi_comp=False):
+    if multi_comp:
+        soma_params = {
+            'C_m': default_params['C_m_s'],                   # [pF] Soma capacitance
+            'g_L': default_params['g_L_s'],                   # [nS] Soma leak conductance
+            'e_L': default_params['e_L_s'],                   # [mV] Soma reversal potential
+            'g_spike': default_params['g_L_s'],          # [nS] Adex conductance
+            'v_thr': default_params['e_Na_Adex'],         # [mV] Adex threshold
+            'delta_thr': default_params['delta_T'],              # [mV] Adex slope factor
+            # 'd_BAP': default_params['d_BAP'],             # delay not yet implemented
+            'refr_period': default_params['t_ref'],
+            'v_reset': default_params['V_reset'],
+            'tau_w': default_params['tau_w'],
+            'sth_a': default_params['a'],
+            'b': default_params['b'],
+            'e_adapt': default_params['e_L_s'],
+            'g_adapt': default_params['g_w'],
+        }
 
-    soma_params = {
-        'C_m': default_params['C_m_s'],                   # [pF] Soma capacitance
-        'g_L': default_params['g_L_s'],                   # [nS] Soma leak conductance
-        'e_L': default_params['e_L_s'],                   # [mV] Soma reversal potential
-        'g_spike': default_params['g_L_s'],          # [nS] Adex conductance
-        'v_thr': default_params['e_Na_Adex'],         # [mV] Adex threshold
-        'delta_thr': default_params['delta_T'],              # [mV] Adex slope factor
-        # 'd_BAP': default_params['d_BAP'],             # delay not yet implemented
-        'refr_period': default_params['t_ref'],
-        'v_reset': default_params['V_reset'],
-        'tau_w': default_params['tau_w'],
-        'sth_a': default_params['a'],
-        'b': default_params['b'],
-        'e_adapt': default_params['e_L_s'],
-        'g_adapt': default_params['g_w'],
-        'w_bap': default_params['w_BAP'],
-    }
-
-    distal_params = {'C_m': default_params['C_m_d'],                 # [pF] Distal capacitance
-                     'g_L': default_params['g_L_d'],                 # [nS] Distal leak conductance
-                     'g_C': default_params['g_C_d'],                 # [nS] Soma-distal coupling conductance
-                     'e_L': default_params['e_L_d'],                 # [mV] Distal reversal potential
-                     'gbar_Ca': default_params['gbar_Ca'],           # [nS] Ca maximal conductance
-                     'gbar_K': default_params['gbar_K_Ca'],       # [nS] K_Ca maximal conductance
-                     'e_K': default_params['e_K'],                   # [mV] K reversal potential
-                     'tau_Ca': default_params['tau_decay_Ca'], # [ms] decay of Ca concentration
-                     'phi_Ca': default_params['phi'],                   # [-] scale factor
-                     'm_half_Ca': default_params['m_half'],             # [mV] m half-value for Ca
-                     'h_half_Ca': default_params['h_half'],             # [mV] h half-value for Ca
-                     'm_slope_Ca': default_params['m_slope'],           # [-] m slope factor for Ca
-                     'h_slope_Ca': default_params['h_slope'],           # [-] h slope factor for Ca
-                     'tau_m_Ca': default_params['tau_m'],               # [ms] m tau decay for Ca
-                     'tau_h_Ca': default_params['tau_h'],               # [ms] h tau decay dor Ca
-                     'tau_m_K': default_params['tau_m_K_Ca'],     # [ms] m tau decay for K_Ca
-                     'c_Ca0': default_params['Ca_0'],                 # [mM] Baseline intracellular Ca conc
-                     'c_Ca_thr': default_params['Ca_th'],               # [mM] Threshold Ca conc for Ca channel opening
-                     'exp_K_Ca': default_params['exp_K_Ca']          # [-] Exponential factor in K_Ca current with Hay dyn
-                     }
+        distal_params = {
+            'C_m': default_params['C_m_d'],                 # [pF] Distal capacitance
+            'g_L': default_params['g_L_d'],                 # [nS] Distal leak conductance
+            'g_C': default_params['g_C_d'],                 # [nS] Soma-distal coupling conductance
+            'e_L': default_params['e_L_d'],                 # [mV] Distal reversal potential
+            'gbar_Ca': default_params['gbar_Ca'],           # [nS] Ca maximal conductance
+            'gbar_K': default_params['gbar_K_Ca'],       # [nS] K_Ca maximal conductance
+            'e_K': default_params['e_K'],                   # [mV] K reversal potential
+            'tau_Ca': default_params['tau_decay_Ca'], # [ms] decay of Ca concentration
+            'phi_Ca': default_params['phi'],                   # [-] scale factor
+            'm_half_Ca': default_params['m_half'],             # [mV] m half-value for Ca
+            'h_half_Ca': default_params['h_half'],             # [mV] h half-value for Ca
+            'm_slope_Ca': default_params['m_slope'],           # [-] m slope factor for Ca
+            'h_slope_Ca': default_params['h_slope'],           # [-] h slope factor for Ca
+            'tau_m_Ca': default_params['tau_m'],               # [ms] m tau decay for Ca
+            'tau_h_Ca': default_params['tau_h'],               # [ms] h tau decay dor Ca
+            'tau_m_K': default_params['tau_m_K_Ca'],     # [ms] m tau decay for K_Ca
+            'c_Ca0': default_params['Ca_0'],                 # [mM] Baseline intracellular Ca conc
+            'c_Ca_thr': default_params['Ca_th'],               # [mM] Threshold Ca conc for Ca channel opening
+            'exp_K_Ca': default_params['exp_K_Ca'],
+            'w_bap': default_params['w_BAP'],          # [-] Exponential factor in K_Ca current with Hay dyn
+        }
+    else:
+        soma_params = {
+            'C_m': default_params['C_m'],                   # [pF] Soma capacitance
+            'g_L': default_params['g_L'],                   # [nS] Soma leak conductance
+            'e_L': default_params['E_L'],                   # [mV] Soma reversal potential
+            'g_spike': default_params['g_L'],          # [nS] Adex conductance
+            'v_thr': default_params['V_th'],         # [mV] Adex threshold
+            'delta_thr': default_params['Delta_T'],              # [mV] Adex slope factor
+            # 'd_BAP': default_params['d_BAP'],             # delay not yet implemented
+            'refr_period': default_params['t_ref'],
+            'v_reset': default_params['V_reset'],
+            'tau_w': default_params['tau_w'],
+            'sth_a': default_params['a'],
+            'b': default_params['b'],
+            'e_adapt': default_params['E_L'],
+            'g_adapt': 1., # educated guess
+        }
+        distal_params = None
 
     other_params = {'V_th': default_params['V_th']}
         
@@ -185,10 +204,12 @@ def create_receptor_mapping(multi_comp=True):
 
 
 def create_nestml_neuron(n = 1, params = {}, multi_comp = True):
-    soma_params, distal_params, other_params = init_Ca_AdEx_nestml(params)
+    soma_params, distal_params, other_params = init_Ca_AdEx_nestml(params, multi_comp=multi_comp)
     # initialize the model with two compartments
     cm = nest.Create("ca_adex_2expsyn_nestml", n)
     cm.V_th = other_params['V_th']
+
+    print(f"? multi_comp: {multi_comp}")
 
     if multi_comp:
         cm.compartments = [
