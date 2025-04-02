@@ -224,6 +224,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
         poisson_rate=nest_pms["poisson"]["poisson_rate"]
         pgs = nest.Create("poisson_generator", num_poisson_generators, params={"rate": poisson_rate})
         poisson_weight=nest_pms["poisson"]["poisson_weight"]
+        
         syn_spec={"weight": poisson_weight, "delay": 1.0}
         for i in range(num_exc_pop):
             if not use_nestml:         
@@ -232,7 +233,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
             else:
                 # @Willem, please modify the code in the comment towards your nestml specifics 
                 assert False, "use_nestml option not yet supported: under construction"  
-            nest.Connect(pgs, neurons[i], syn_spec) 
+            nest.Connect(pgs, neurons[i], 'all_to_all', syn_spec)
 
     # Add contextual poisson signal if configured
     if 'contextual_poisson' in nest_pms and \
