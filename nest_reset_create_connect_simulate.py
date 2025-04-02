@@ -111,8 +111,8 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
     assert(conn_rule == 'pairwise_bernoulli')
     conn_spec_dict_exc = {"rule": conn_rule, "p": p_conn_exc}
     conn_spec_dict_inh = {"rule": conn_rule, "p": p_conn_inh}
-    #conn_spec_dict_exc = {"rule": 'all_to_all'}
-    #conn_spec_dict_inh = {"rule": 'all_to_all'}
+    conn_spec_dict_exc = {"rule": 'all_to_all', "allow_autapses":False}
+    conn_spec_dict_inh = {"rule": 'all_to_all', "allow_autapses":False}
 
     #set to false the book-keeping of intra-pop and inter pop syn types
     present_exc_conn={}
