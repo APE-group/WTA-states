@@ -111,6 +111,8 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
     assert(conn_rule == 'pairwise_bernoulli')
     conn_spec_dict_exc = {"rule": conn_rule, "p": p_conn_exc}
     conn_spec_dict_inh = {"rule": conn_rule, "p": p_conn_inh}
+    #conn_spec_dict_exc = {"rule": 'all_to_all'}
+    #conn_spec_dict_inh = {"rule": 'all_to_all'}
 
     #set to false the book-keeping of intra-pop and inter pop syn types
     present_exc_conn={}
@@ -137,7 +139,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
             # POSSIBLY UNIFY THE TWO CASES??
             #    syn_spec_dict.update({'receptor_type': YOUR RECEPTOR})           
             
-        nest.Connect(neurons[i], neurons[i], conn_spec_dict_exc, syn_spec)
+        nest.Connect(neurons[i], neurons[i], conn_spec=conn_spec_dict_exc, syn_spec=syn_spec)
         present_exc_conn[i][i] = {'synapse_model': static_synapse_i_i} 
 
     #inter assemblies connections: initial set-up
@@ -164,12 +166,12 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
                         # POSSIBLY UNIFY THE TWO CASES??
                         #    syn_spec_dict.update({'receptor_type': YOUR SOMATIC RECEPTOR})
                     
-                    nest.Connect(neurons[i], neurons[j], conn_spec_dict_exc, syn_spec)
+                    nest.Connect(neurons[i], neurons[j], conn_spec=conn_spec_dict_exc, syn_spec=syn_spec)
                     present_exc_conn[i][j]['synapse_model'] = static_synapse_i_j
 
     #inh to inh connections: initial setup
     nest.CopyModel('static_synapse','static_synapse_inh_inh')
-    nest.Connect(inh_neurons, inh_neurons, conn_spec_dict_inh,\
+    nest.Connect(inh_neurons, inh_neurons, conn_spec=conn_spec_dict_inh,\
                 syn_spec={"synapse_model": 'static_synapse_inh_inh', "weight": inh_to_inh_weight, "delay": inh_to_inh_delay_ms})
     
     # Connect inhibitory neurons to all excitatory neurons and vice versa
@@ -209,13 +211,13 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
             # POSSIBLY UNIFY THE TWO CASES??
             #    syn_spec_dict.update({"weight": -inh_to_exc_weight, "receptor_type": YOUR SOMATIC INH RECEPTOR})      
 
-        nest.Connect(inh_neurons, neurons[i], conn_spec_dict_inh, syn_spec)
+        nest.Connect(inh_neurons, neurons[i], conn_spec=conn_spec_dict_inh, syn_spec=syn_spec)
         
         # exc(i) to inh    
         new_syn_model_exc_n_inh = 'static_synapse_exc_' + str(i) + '_inh'
         nest.CopyModel('static_synapse', new_syn_model_exc_n_inh)
         syn_spec={"synapse_model": new_syn_model_exc_n_inh, "weight": exc_to_inh_weight, "delay": exc_to_inh_delay_ms}
-        nest.Connect(neurons[i], inh_neurons, conn_spec_dict_exc, syn_spec)      
+        nest.Connect(neurons[i], inh_neurons, conn_spec=conn_spec_dict_exc, syn_spec=syn_spec)      
 
     # Create and connect Poisson generators if enabled
     use_poisson_generators=nest_pms["network"]["use_poisson_generators"]
@@ -233,8 +235,8 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
             else:
                 # @Willem, please modify the code in the comment towards your nestml specifics 
                 assert False, "use_nestml option not yet supported: under construction"  
-            nest.Connect(pgs, neurons[i], 'all_to_all', syn_spec)
-
+            nest.Connect(pgs, neurons[i], syn_spec=syn_spec)
+            
     # Add contextual poisson signal if configured
     if 'contextual_poisson' in nest_pms and \
             nest_pms['brain_state'] in nest_pms['contextual_poisson']: 
@@ -356,7 +358,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
             if verbose:
                 print("in make_plastic_conn: before connecting ",new_syn_model) 
             nest.Connect(neurons[source_exc_pop], neurons[target_exc_pop],
-                         conn_spec_dict, syn_spec_dict)
+                         conn_spec=conn_spec_dict, syn_spec=syn_spec_dict)
             if verbose:
                 print("in make_plastic_conn: after connecting ",new_syn_model) 
             present_exc_conn[source_exc_pop][target_exc_pop] = {'synapse_model': new_syn_model}
@@ -389,7 +391,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
             assert False, "use_nestml option not yet supported: under construction"
         
         nest.Connect(neurons[source_exc_pop], neurons[target_exc_pop], 
-                             conn_spec_dict, syn_spec_dict)
+                             conn_spec=conn_spec_dict, syn_spec=syn_spec_dict)
         present_exc_conn[source_exc_pop][target_exc_pop] = {'synapse_model': new_disconnected_static_syn_model, 'weight': 0.0}
         return
 
