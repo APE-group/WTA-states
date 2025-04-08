@@ -1,5 +1,6 @@
 import nest
 from cm_neuron import create_cm_neuron
+from cm_neuron_nestml import create_nestml_neuron, create_receptor_mapping
 from synaptic_io import *
 
 # 2024-1002
