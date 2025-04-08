@@ -14,6 +14,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
     sim_completed=False
     sim_pms=nest_pms["sim_pms"]
     nest.ResetKernel()
+    nest.Install("ca_adex_2expsyn_module")
 
     nest.SetKernelStatus({"resolution": sim_pms["resolution_ms"]})
     nest.SetKernelStatus({'local_num_threads':num_threads})
