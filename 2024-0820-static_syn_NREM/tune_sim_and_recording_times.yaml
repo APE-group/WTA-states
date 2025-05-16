@@ -7,10 +7,10 @@ recording_pms:
     stop_ms: 45000.0
 events_pms:
   - action: 
-      kind: 'store_intra_assembly_syn'
-      file_name: 'first_syn_matrix'
+      kind: 'store_syn'
+      syn_file_name: 'first_syn_matrix'
     sim_period_ms: 1000.0
   - action: 
-      kind: 'store_intra_assembly_syn'
-      file_name: 'second_syn_matrix'
+      kind: 'store_syn'
+      syn_file_name: 'second_syn_matrix'
     sim_period_ms: 2000.0
