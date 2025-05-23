@@ -50,6 +50,7 @@ def init_Ca_AdEx_nestml(default_params, multi_comp=False):
             'b': default_params['b'],
             'e_adapt': default_params['e_L_s'],
             'g_adapt': default_params['g_w'],
+            # 'g_refr': 100000.,
         }
 
         distal_params = {
@@ -58,7 +59,7 @@ def init_Ca_AdEx_nestml(default_params, multi_comp=False):
             'g_C': default_params['g_C_d'],                 # [nS] Soma-distal coupling conductance
             'e_L': default_params['e_L_d'],                 # [mV] Distal reversal potential
             'gbar_Ca': default_params['gbar_Ca'],           # [nS] Ca maximal conductance
-            'gbar_K': default_params['gbar_K_Ca'],       # [nS] K_Ca maximal conductance
+            'gbar_K': default_params['gbar_K_Ca']*2,       # [nS] K_Ca maximal conductance
             'e_K': default_params['e_K'],                   # [mV] K reversal potential
             'tau_Ca': default_params['tau_decay_Ca'], # [ms] decay of Ca concentration
             'phi_Ca': default_params['phi'],                   # [-] scale factor
@@ -73,6 +74,9 @@ def init_Ca_AdEx_nestml(default_params, multi_comp=False):
             'c_Ca_thr': default_params['Ca_th'],               # [mM] Threshold Ca conc for Ca channel opening
             'exp_K_Ca': default_params['exp_K_Ca'],
             'w_bap': default_params['w_BAP'],          # [-] Exponential factor in K_Ca current with Hay dyn
+            'g_adapt': 0.,
+            'g_spike': 0.,
+            'g_refr': 0.,
         }
         other_params = {'V_th': default_params['V_th']}
     else:
@@ -151,10 +155,10 @@ def create_receptor_mapping(multi_comp=True):
     return ri
 
 
-def create_nestml_neuron(n = 1, params = {}, multi_comp = True):
+def create_nestml_neuron(n = 1, params = {}, multi_comp = True, neuron_model="ca_adex_2expsyn_nestml"):
     soma_params, distal_params, other_params = init_Ca_AdEx_nestml(params, multi_comp=multi_comp)
     # initialize the model with two compartments
-    cm = nest.Create("ca_adex_2expsyn_nestml", n)
+    cm = nest.Create(neuron_model, n)
     cm.V_th = other_params['V_th']
 
     print(f"? multi_comp: {multi_comp}")
