@@ -13,8 +13,10 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
 
     sim_completed=False
     sim_pms=nest_pms["sim_pms"]
+    use_nestml=nest_pms["use_nestml"]
     nest.ResetKernel()
-    nest.Install("ca_adex_2expsyn_module")
+    if use_nestml: 
+        nest.Install("ca_adex_2expsyn_module")
 
     nest.SetKernelStatus({"resolution": sim_pms["resolution_ms"]})
     nest.SetKernelStatus({'local_num_threads':num_threads})
@@ -27,7 +29,7 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
     default_plasticity = nest_pms["network"]["default_plasticity"]
 
     use_single_compartment_environment=nest_pms["use_single_compartment_environment"]
-    use_nestml=nest_pms["use_nestml"]
+    
     print("IN nest_reset_create_connect_simulate: use_single_compartment_environment =", use_single_compartment_environment)
     print("IN nest_reset_create_connect_simulate: use_nestml =", use_nestml)
     exc_neu_params=nest_pms['exc_neu_params'] 
