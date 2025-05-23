@@ -1,6 +1,7 @@
 #if relative_output_dir == 'overwrite_dir' files are copied 
 #there and plots are stored there without checking for overwriting
 relative_output_dir: 'overwrite_dir'
+# relative_output_dir: '2025-04-08_multicomp'
 
 #otherwise select an interesting dir name like:
 #relative_output_dir: '202x-mmdd-YourSimulationName'

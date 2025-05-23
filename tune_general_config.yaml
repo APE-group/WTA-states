@@ -2,10 +2,10 @@
 #brain_state: "NREM"
 brain_state: "awake"
 use_nestml: True
-use_single_compartment_environment: False
-exc_neu_params_filename: "Ca-AdEx_neural_params.yaml"
+use_single_compartment_environment: True
+# exc_neu_params_filename: "Ca-AdEx_neural_params.yaml"
 inh_neu_params_filename: "standard_AdEx_inh_neural_params.yaml"
-# exc_neu_params_filename: "standard_AdEx_exc_neural_params.yaml" 
+exc_neu_params_filename: "standard_AdEx_exc_neural_params.yaml" 
 #exc_neu_params_filename: "MC-g0_like-exc_neural_params.yaml"
 
 network:
@@ -18,12 +18,12 @@ network:
 #conversion factor for synaptic conductances
 cf: 1.0
 #estimated 2024-0708
-cf: 1.5
+# cf: 1.5
 
 weights:
   awake:
     #recurrent_weight: 0.0
-    recurrent_weight: 9.5
+    recurrent_weight: 10.5 #9.5
 
     #inh_to_exc_weight: -0.85
     #inh_to_exc_weight: 0.0
@@ -49,7 +49,7 @@ weights:
 
 contextual_poisson:
   awake:
-    basic_rate: 4000.0
+    basic_rate: 3000.0 #4000.0
     poisson_weight: 0.6
     spreading_factor: 4.0
     events:

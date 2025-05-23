@@ -112,6 +112,8 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
     else:
         # create multimeter to record compartment voltages and various state variables
         rec_list = ['v_comp0', f'syn_2exp{ri.ALPHAexc_soma}']
+        if not use_single_compartment_environment:
+            rec_list.append('v_comp1')
         pop = 0
         neu = 0
         multimeter = nest.Create('multimeter', 1, {'record_from': rec_list, 'interval': .1, 
@@ -301,8 +303,8 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
                 else:
                     # @Willem, please modify the code in the comment towards your nestml specifics 
                     if use_single_compartment_environment:    
-                        syn_spec.update({'receptor_type': ri.AMPA_NMDA_soma})
-                        # syn_spec.update({'receptor_type': ri.ALPHAexc_soma})
+                        # syn_spec.update({'receptor_type': ri.AMPA_NMDA_soma})
+                        syn_spec.update({'receptor_type': ri.ALPHAexc_soma})
                     else:    
                         syn_spec.update({'receptor_type': ri.AMPA_NMDA_dist})
 
