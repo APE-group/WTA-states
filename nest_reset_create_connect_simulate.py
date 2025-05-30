@@ -14,9 +14,13 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
     sim_completed=False
     sim_pms=nest_pms["sim_pms"]
     use_nestml=nest_pms["use_nestml"]
+    use_2in1=nest_pms["use_2in1"]
     nest.ResetKernel()
-    if use_nestml: 
-        nest.Install("ca_adex_2expsyn_module")
+    if use_nestml:
+        if use_2in1:
+            nest.Install("aeif_cond_alpha_two_comp_neuron_module")
+        else:
+            nest.Install("ca_adex_2expsyn_stdp_module")
 
     nest.SetKernelStatus({"resolution": sim_pms["resolution_ms"]})
     nest.SetKernelStatus({'local_num_threads':num_threads})
@@ -58,15 +62,36 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
                 create_cm_neuron(num_exc_neu_per_pop, params=exc_neu_params['equation_params']) for _ in range(num_exc_pop)
             ]
     else:
-        # @Willem, please add here your nestml specifics 
-        neurons = [
-            create_nestml_neuron(
+        if use_2in1:
+            neurons = [
+                nest.Create(
+                    "aeif_cond_alpha_two_comp_neuron",
+                    num_exc_neu_per_pop,
+                    params=exc_neu_params['equation_params'])
+                for _ in range(num_exc_pop)
+            ]
+            receptor_types_2in1 = neurons[0][0].get("receptor_types")
+
+            # connect soma to distal with delay to reproduce back propagation currents
+            w_BAP = 27.995561755479308
+            d_BAP = 0.1195980511869619
+            nest.CopyModel('static_synapse', 'BAP_syn')
+
+            for i in range (num_exc_pop):
+                nest.Connect(neurons[i], neurons[i], conn_spec={'rule': 'one_to_one'},
+                             syn_spec={'synapse_model': 'BAP_syn',
+                                       'weight': w_BAP, 'delay': d_BAP,
+                                       'receptor_type': receptor_types_2in1["SPIKES_AMPA_D"]})
+        else:
+            # @Willem, please add here your nestml specifics 
+            neurons = [
+                create_nestml_neuron(
                 num_exc_neu_per_pop, 
-                params=exc_neu_params['equation_params'], 
-                multi_comp=not(use_single_compartment_environment)
-            ) for _ in range(num_exc_pop)
-        ]
-        ri = create_receptor_mapping(multi_comp=not(use_single_compartment_environment))
+                    params=exc_neu_params['equation_params'], 
+                    multi_comp=not(use_single_compartment_environment)
+                ) for _ in range(num_exc_pop)
+            ]
+            ri = create_receptor_mapping(multi_comp=not(use_single_compartment_environment))
         
     # Create inhibitory neurons
     inh_neu_params = nest_pms["inh_neu_params"]
@@ -112,14 +137,19 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
             # nest.Connect(multimeter, neurons[pop])
             nest.Connect(multimeter, neurons[pop][neu])
     else:
-        # create multimeter to record compartment voltages and various state variables
-        rec_list = ['v_comp0', f'syn_2exp{ri.ALPHAexc_soma}']
+        if use_2in1:
+            rec_list = ['V_m_s', 'V_m_d', 'w','m_Ca','h_Ca']
+            print('debug - receptor_types_2in1:', receptor_types_2in1)
+
+        else:
+            # create multimeter to record compartment voltages and various state variables
+            rec_list = ['v_comp0', f'syn_2exp{ri.ALPHAexc_soma}']
         pop = 0
         neu = 0
         multimeter = nest.Create('multimeter', 1, {'record_from': rec_list, 'interval': .1, 
                             'start': recording_pms['start_ms'], 'stop': recording_pms['stop_ms']})
         # nest.Connect(multimeter, neurons[pop])
-        nest.Connect(multimeter, neurons[pop][neu])
+        #nest.Connect(multimeter, neurons[pop][neu])
 
 
 
@@ -157,14 +187,17 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
             if(not use_single_compartment_environment):
                 syn_spec.update({'receptor_type': ALPHAexc_soma})
         else:
-            # @Willem, please modify the code in the comment towards your nestml specifics 
-            syn_spec.update({'receptor_type': ri.ALPHAexc_soma})
-            #if (not use_single_compartment_environment):
-            #    syn_spec_dict.update({'receptor_type': YOUR RECEPTOR})
-            #else:
-            # PROBABLY YOU HAVE TO INSERT A LINE ALSO FOR THE NESTML SINGLE COMPARTMENT??? 
-            # POSSIBLY UNIFY THE TWO CASES??
-            #    syn_spec_dict.update({'receptor_type': YOUR RECEPTOR})           
+            if use_2in1:
+                syn_spec.update({'receptor_type': receptor_types_2in1["EXC_SPIKES_SOMA"]})
+            else:
+                # @Willem, please modify the code in the comment towards your nestml specifics 
+                syn_spec.update({'receptor_type': ri.ALPHAexc_soma})
+                #if (not use_single_compartment_environment):
+                #    syn_spec_dict.update({'receptor_type': YOUR RECEPTOR})
+                #else:
+                # PROBABLY YOU HAVE TO INSERT A LINE ALSO FOR THE NESTML SINGLE COMPARTMENT??? 
+                # POSSIBLY UNIFY THE TWO CASES??
+                #    syn_spec_dict.update({'receptor_type': YOUR RECEPTOR})           
             
         nest.Connect(neurons[i], neurons[i], conn_spec=conn_spec_dict_exc, syn_spec=syn_spec)
         present_exc_conn[i][i] = {'synapse_model': static_synapse_i_i} 
@@ -184,14 +217,17 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
                         if(not use_single_compartment_environment):
                             syn_spec.update({'receptor_type': ALPHAexc_soma})
                     else:
-                        # @Willem, please modify the code in the comment towards your nestml specifics 
-                        syn_spec_dict.update({'receptor_type': ri.ALPHAexc_soma})
-                        #if use_single_compartment_environment==False:
-                        #    syn_spec_dict.update({'receptor_type': YOUR SOMATIC RECEPTOR})
-                        #else:
-                        # PROBABLY YOU HAVE TO INSERT A LINE ALSO FOR THE NESTML SINGLE COMPARTMENT??? 
-                        # POSSIBLY UNIFY THE TWO CASES??
-                        #    syn_spec_dict.update({'receptor_type': YOUR SOMATIC RECEPTOR})
+                        if use_2in1:
+                            syn_spec.update({'receptor_type': receptor_types_2in1["EXC_SPIKES_SOMA"]})
+                        else:
+                            # @Willem, please modify the code in the comment towards your nestml specifics 
+                            syn_spec.update({'receptor_type': ri.ALPHAexc_soma})
+                            #if use_single_compartment_environment==False:
+                            #    syn_spec_dict.update({'receptor_type': YOUR SOMATIC RECEPTOR})
+                            #else:
+                            # PROBABLY YOU HAVE TO INSERT A LINE ALSO FOR THE NESTML SINGLE COMPARTMENT??? 
+                            # POSSIBLY UNIFY THE TWO CASES??
+                            #    syn_spec_dict.update({'receptor_type': YOUR SOMATIC RECEPTOR})
                     
                     nest.Connect(neurons[i], neurons[j], conn_spec=conn_spec_dict_exc, syn_spec=syn_spec)
                     present_exc_conn[i][j]['synapse_model'] = static_synapse_i_j
@@ -229,17 +265,20 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
             if(not use_single_compartment_environment):
                 syn_spec.update({"weight": -inh_to_exc_weight, 'receptor_type': ALPHAinh_soma})
         else:
-            # @Willem, please modify the code in the comment towards your nestml specifics 
-            syn_spec.update({
-                "weight": -inh_to_exc_weight, 
-                "receptor_type": ri.ALPHAinh_soma,
-            })
-            #if (not use_single_compartment_environment):
-            #    syn_spec_dict.update({"weight": -inh_to_exc_weight, "receptor_type": YOUR SOMATIC INH RECEPTOR})
-            #else:
-            # PROBABLY YOU HAVE TO INSERT A LINE ALSO FOR THE NESTML SINGLE COMPARTMENT??? 
-            # POSSIBLY UNIFY THE TWO CASES??
-            #    syn_spec_dict.update({"weight": -inh_to_exc_weight, "receptor_type": YOUR SOMATIC INH RECEPTOR})      
+            if use_2in1:
+                syn_spec.update({'receptor_type': receptor_types_2in1["INH_SPIKES_SOMA"]})
+            else:
+                # @Willem, please modify the code in the comment towards your nestml specifics 
+                syn_spec.update({
+                    "weight": -inh_to_exc_weight, 
+                    "receptor_type": ri.ALPHAinh_soma,
+                })
+                #if (not use_single_compartment_environment):
+                #    syn_spec_dict.update({"weight": -inh_to_exc_weight, "receptor_type": YOUR SOMATIC INH RECEPTOR})
+                #else:
+                # PROBABLY YOU HAVE TO INSERT A LINE ALSO FOR THE NESTML SINGLE COMPARTMENT??? 
+                # POSSIBLY UNIFY THE TWO CASES??
+                #    syn_spec_dict.update({"weight": -inh_to_exc_weight, "receptor_type": YOUR SOMATIC INH RECEPTOR})      
 
         nest.Connect(inh_neurons, neurons[i], conn_spec=conn_spec_dict_inh, syn_spec=syn_spec)
         
@@ -263,8 +302,11 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
                 if not use_single_compartment_environment:
                     syn_spec.update({'receptor_type': ALPHAexc_soma})
             else:
-                # @Willem, please modify the code in the comment towards your nestml specifics 
-                syn_spec.update({'receptor_type': ri.ALPHAexc_soma}) 
+                if use_2in1:
+                    syn_spec.update({'receptor_type': receptor_types_2in1["EXC_SPIKES_SOMA"]})
+                else:
+                    # @Willem, please modify the code in the comment towards your nestml specifics 
+                    syn_spec.update({'receptor_type': ri.ALPHAexc_soma}) 
             nest.Connect(pgs, neurons[i], syn_spec=syn_spec)
             
     # Add contextual poisson signal if configured
@@ -301,12 +343,15 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
                     if not use_single_compartment_environment:             
                         syn_spec.update({'receptor_type': AMPA_NMDA_dist})
                 else:
-                    # @Willem, please modify the code in the comment towards your nestml specifics 
-                    if use_single_compartment_environment:    
-                        syn_spec.update({'receptor_type': ri.AMPA_NMDA_soma})
-                        # syn_spec.update({'receptor_type': ri.ALPHAexc_soma})
-                    else:    
-                        syn_spec.update({'receptor_type': ri.AMPA_NMDA_dist})
+                    if use_2in1:
+                        syn_spec.update({'receptor_type': receptor_types_2in1["SPIKES_AMPA_NMDA_D"]})
+                    else:
+                        # @Willem, please modify the code in the comment towards your nestml specifics 
+                        if use_single_compartment_environment:    
+                            syn_spec.update({'receptor_type': ri.AMPA_NMDA_soma})
+                            # syn_spec.update({'receptor_type': ri.ALPHAexc_soma})
+                        else:    
+                            syn_spec.update({'receptor_type': ri.AMPA_NMDA_dist})
 
                 nest.Connect(contextual_poisson_gen, neurons[target_pop], syn_spec=syn_spec)
 
@@ -386,8 +431,11 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
                 if not use_single_compartment_environment:
                         syn_spec_dict.update({'receptor_type': ALPHAexc_soma})
             else:
-                # @Willem, please modify the code in the comment towards your nestml specifics 
-                syn_spec_dict.update({'receptor_type': ri.ALPHAexc_soma})
+                if use_2in1:
+                    syn_spec_dict.update({'receptor_type': receptor_types_2in1["EXC_SPIKES_SOMA"]})
+                else:
+                    # @Willem, please modify the code in the comment towards your nestml specifics 
+                    syn_spec_dict.update({'receptor_type': ri.ALPHAexc_soma})
                 
             if verbose:
                 print("in make_plastic_conn: before connecting ",new_syn_model) 
@@ -421,8 +469,11 @@ def nest_reset_create_connect_simulate(nest_pms, num_threads, verbose):
             if not use_single_compartment_environment:
                 syn_spec_dict.update({'receptor_type': ALPHAexc_soma})
         else:
-            # @Willem, please modify the code in the comment towards your nestml specifics 
-            syn_spec_dict.update({'receptor_type': ri.ALPHAexc_soma})
+            if use_2in1:
+                syn_spec_dict.update({'receptor_type': receptor_types_2in1["EXC_SPIKES_SOMA"]})
+            else:
+                # @Willem, please modify the code in the comment towards your nestml specifics 
+                syn_spec_dict.update({'receptor_type': ri.ALPHAexc_soma})
         
         nest.Connect(neurons[source_exc_pop], neurons[target_exc_pop], 
                              conn_spec=conn_spec_dict, syn_spec=syn_spec_dict)
